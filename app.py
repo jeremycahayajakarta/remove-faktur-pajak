@@ -4,6 +4,8 @@ import pymysql
 app = Flask(__name__)
 
 # Connect to DB
+
+
 def connect_db():
     conn = pymysql.connect(
         host='localhost',
@@ -13,6 +15,7 @@ def connect_db():
         charset='utf8mb4',
         cursorclass=pymysql.cursors.DictCursor)
     return conn
+
 
 @app.route('/faktur')
 def get_all_faktur():
@@ -26,6 +29,7 @@ def get_all_faktur():
     else:
         response = {"status": 200, "data": result, "message": "Data retrieved"}
     return jsonify(response)
+
 
 @app.route('/faktur/<id>')
 def get_faktur(id):
@@ -41,13 +45,14 @@ def get_faktur(id):
         response = {"status": 200, "data": result, "message": "Data retrieved"}
     return jsonify(response)
 
+
 @app.route('/remove', methods=['POST'])
 def remove_faktur():
     # Arguments
     id = request.args.get('id')
     jurnal = request.args.get('jurnal')
     year = request.args.get('year')
-    
+
     conn = connect_db()
     cur = conn.cursor()
     query = "UPDATE hafgfk__ SET cde___ap = '' WHERE fak__ref = %s AND dgbk_ref=%s AND bkj__ref=%s"
@@ -59,6 +64,8 @@ def remove_faktur():
     result = cur.rowcount
     if result == 1:
         msg = "Value {} is removed".format(id)
+        log = "INSERT INTO log_del_fp (user_id, no_inv, no_fps, alasan, tgl_remove, jam_remove) VALUES (1, 2, 3, 'Hapus faktur', CURDATE(), CURTIME())"
+        cur.execute(log)
     else:
         msg = "There is no value removed"
     response = {"status": 200, "message": msg}

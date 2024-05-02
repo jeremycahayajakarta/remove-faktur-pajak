@@ -7,6 +7,7 @@ class Faktur:
     def get_all_faktur():
         conn = connect_db()
         cur = conn.cursor()
+
         query = "SELECT dossier_, dgbk_ref, fak__ref, bkj__ref, peri_ref, kla__ref, cde___ap FROM hafgfk__ LIMIT 10"
         cur.execute(query)
         result = cur.fetchall()
@@ -24,7 +25,7 @@ class Faktur:
         data = request.get_json()
         if data is None:
             return make_response(jsonify({"message": "No data inside request body"})), 400
-        
+
         id = data.get('id')
 
         conn = connect_db()
@@ -59,10 +60,11 @@ class Faktur:
         result = cur.fetchall()
         cur.close()
         if result is None:
-            response = {"message": "No data between {} and {}".format(start_date, end_date)}
+            response = {"message": "No data between {} and {}".format(
+                start_date, end_date)}
         else:
             response = {"data": result,
-                                "message": "Data retrieved"}
+                        "message": "Data retrieved"}
         cur.close()
         return make_response(jsonify(response)), 200
 
@@ -93,4 +95,25 @@ class Faktur:
         cur.close()
         conn.commit()
 
+        return make_response(jsonify(response)), status
+
+    @staticmethod
+    def get_all_logs():
+        conn = connect_db()
+        cur = conn.cursor()
+
+        query = "SELECT user_id, no_inv, no_fps, alasan, tgl_remove, jam_remove FROM log_del_fp ORDER BY tgl_remove DESC, jam_remove DESC"
+        cur.execute(query)
+        result = cur.fetchall()
+        if result is None:
+            response, status = {"message": "Problem occured"}, 400
+        else:
+            response, status = {"data": result,
+                                "message": "Data retrieved"}, 200
+
+        for row in result:
+            row['tgl_remove'] = row['tgl_remove'].strftime("%d %b %Y")
+            row['jam_remove'] = str(row['jam_remove'])
+
+        cur.close()
         return make_response(jsonify(response)), status

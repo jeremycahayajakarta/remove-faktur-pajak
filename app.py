@@ -25,6 +25,10 @@ def get_faktur_by_date():
 def remove_faktur():
     return Faktur.remove_faktur()
 
+@app.route('/log')
+def get_all_logs():
+    return Faktur.get_all_logs()
+
 
 if __name__ == '__main__':
     app.run(debug=True)

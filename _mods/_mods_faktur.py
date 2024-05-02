@@ -1,6 +1,7 @@
 from flask import jsonify, make_response, request
 from db_conn import connect_db
 
+
 class Faktur:
     @staticmethod
     def get_all_faktur():
@@ -10,36 +11,71 @@ class Faktur:
         cur.execute(query)
         result = cur.fetchall()
         if result is None:
-            response, status = {"message": "Problem occured"}, 500
+            response, status = {"message": "Problem occured"}, 400
         else:
-            response, status = {"data": result, "message": "Data retrieved"}, 200
+            response, status = {"data": result,
+                                "message": "Data retrieved"}, 200
         cur.close()
         return make_response(jsonify(response)), status
 
     @staticmethod
-    def get_faktur(id):
+    def get_faktur_by_id():
+        # Req Body
+        data = request.get_json()
+        if data is None:
+            return make_response(jsonify({"message": "No data inside request body"})), 400
+        
+        id = data.get('id')
+
         conn = connect_db()
         cur = conn.cursor()
+
         query = "SELECT dossier_, dgbk_ref, fak__ref, bkj__ref, peri_ref, kla__ref, cde___ap FROM hafgfk__ WHERE fak__ref=%s"
         cur.execute(query, (id))
         result = cur.fetchone()
         cur.close()
         if result is None:
-            response, status = {"message": "Problem occured"}, 500
+            response = {"message": "No data with ID {}".format(id)}
         else:
-            response, status = {"data": result, "message": "Data retrieved"}, 200
+            response = {"data": result, "message": "Data retrieved"}
         cur.close()
-        return make_response(jsonify(response)), status
-    
+        return make_response(jsonify(response)), 200
+
+    @staticmethod
+    def get_faktur_by_date():
+        # Req Body
+        data = request.get_json()
+        if data is None:
+            return make_response(jsonify({"message": "No data inside request body"})), 400
+
+        start_date = data.get('start_date')
+        end_date = data.get('end_date')
+
+        conn = connect_db()
+        cur = conn.cursor()
+
+        query = "SELECT dossier_, dgbk_ref, fak__ref, bkj__ref, peri_ref, kla__ref, cde___ap FROM hafgfk__ WHERE dok__dat BETWEEN %s AND %s"
+        cur.execute(query, (start_date, end_date))
+        result = cur.fetchall()
+        cur.close()
+        if result is None:
+            response = {"message": "No data between {} and {}".format(start_date, end_date)}
+        else:
+            response = {"data": result,
+                                "message": "Data retrieved"}
+        cur.close()
+        return make_response(jsonify(response)), 200
+
     @staticmethod
     def remove_faktur():
-    # Arguments
+        # Arguments
         id = request.args.get('id')
         jurnal = request.args.get('jurnal')
         year = request.args.get('year')
 
         conn = connect_db()
         cur = conn.cursor()
+
         query = "UPDATE hafgfk__ SET cde___ap = '' WHERE fak__ref = %s AND dgbk_ref=%s AND bkj__ref=%s"
         cur.execute(query, (id, jurnal, year))
         query = "UPDATE vkpvlg__ SET dgbk_ref = '', bkj__ref = '', fak__ref = '' WHERE fak__ref=%s AND dgbk_ref=%s AND bkj__ref=%s"

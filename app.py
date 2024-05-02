@@ -11,9 +11,14 @@ def get_all_faktur():
     return Faktur.get_all_faktur()
 
 
-@app.route('/faktur/<id>')
-def get_faktur(id):
-    return Faktur.get_faktur(id)
+@app.route('/faktur/id')
+def get_faktur_by_id():
+    return Faktur.get_faktur_by_id()
+
+
+@app.route('/faktur/date')
+def get_faktur_by_date():
+    return Faktur.get_faktur_by_date()
 
 
 @app.route('/remove', methods=['POST'])

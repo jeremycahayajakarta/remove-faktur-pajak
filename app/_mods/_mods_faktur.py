@@ -1,5 +1,5 @@
 from flask import jsonify, make_response, request
-from db_conn import connect_db
+from app.db_conn import connect_db
 
 
 class Faktur:
@@ -8,7 +8,7 @@ class Faktur:
         conn = connect_db()
         cur = conn.cursor()
 
-        query = "SELECT dossier_, dgbk_ref, fak__ref, bkj__ref, peri_ref, kla__ref, cde___ap FROM hafgfk__ LIMIT 10"
+        query = "SELECT dossier_, dgbk_ref, fak__ref, bkj__ref, peri_ref, kla__ref, cde___ap FROM hafgfk__"
         cur.execute(query)
         result = cur.fetchall()
         if result is None:
@@ -55,7 +55,7 @@ class Faktur:
         conn = connect_db()
         cur = conn.cursor()
 
-        query = "SELECT dossier_, dgbk_ref, fak__ref, bkj__ref, peri_ref, kla__ref, cde___ap FROM hafgfk__ WHERE dok__dat BETWEEN %s AND %s"
+        query = "SELECT dossier_, dgbk_ref, fak__ref, bkj__ref, peri_ref, kla__ref, cde___ap, dok__dat FROM hafgfk__ WHERE dok__dat BETWEEN %s AND %s"
         cur.execute(query, (start_date, end_date))
         result = cur.fetchall()
         cur.close()
@@ -70,18 +70,20 @@ class Faktur:
 
     @staticmethod
     def remove_faktur():
-        # Arguments
-        id = request.args.get('id')
-        jurnal = request.args.get('jurnal')
-        year = request.args.get('year')
+        # Req Body
+        data = request.get_json()
+        if data is None:
+            return make_response(jsonify({"message": "No data inside request body"})), 400
+        id = data['id']
+        year = data['year']
 
         conn = connect_db()
         cur = conn.cursor()
 
-        query = "UPDATE hafgfk__ SET cde___ap = '' WHERE fak__ref = %s AND dgbk_ref=%s AND bkj__ref=%s"
-        cur.execute(query, (id, jurnal, year))
-        query = "UPDATE vkpvlg__ SET dgbk_ref = '', bkj__ref = '', fak__ref = '' WHERE fak__ref=%s AND dgbk_ref=%s AND bkj__ref=%s"
-        cur.execute(query, (id, jurnal, year))
+        query = "UPDATE hafgfk__ SET cde___ap = '' WHERE fak__ref = %s AND bkj__ref=%s"
+        cur.execute(query, (id, year))
+        query = "UPDATE vkpvlg__ SET dgbk_ref = '', bkj__ref = '', fak__ref = '' WHERE fak__ref=%s AND bkj__ref=%s"
+        cur.execute(query, (id, year))
 
         # msg = cur.messages
         result = cur.rowcount

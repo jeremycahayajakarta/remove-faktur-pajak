@@ -7,8 +7,17 @@ faktur = Blueprint('faktur', __name__)
 
 @faktur.route('/')
 def home():
-    data = Faktur.get_all_faktur().response
-    return render_template('home.html', data=json.loads(data[0].decode('utf-8'))['data'])
+    return render_template('home.html')
+
+@faktur.route('/get-all')
+def get_all_faktur_template():
+    data = get_all_faktur().response
+    return render_template('faktur_pajak.html', data=json.loads(data[0].decode('utf-8'))['data'])
+
+@faktur.route('/get-id')
+def get_faktur_by_id_template():
+    data = get_faktur_by_id().response
+    return render_template('faktur_pajak.html', data=json.loads(data[0].decode('utf-8'))['data'])
 
 @faktur.route('/faktur', methods=['GET'])
 def get_all_faktur():

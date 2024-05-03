@@ -8,7 +8,7 @@ class Faktur:
         conn = connect_db()
         cur = conn.cursor()
 
-        query = "SELECT dossier_, dgbk_ref, fak__ref, bkj__ref, peri_ref, kla__ref, cde___ap FROM hafgfk__"
+        query = "SELECT dossier_, dgbk_ref, fak__ref, bkj__ref, peri_ref, kla__ref, cde___ap FROM hafgfk__ WHERE cde___ap != ''"
         cur.execute(query)
         result = cur.fetchall()
         if result is None:
@@ -31,7 +31,7 @@ class Faktur:
         conn = connect_db()
         cur = conn.cursor()
 
-        query = "SELECT dossier_, dgbk_ref, fak__ref, bkj__ref, peri_ref, kla__ref, cde___ap FROM hafgfk__ WHERE fak__ref=%s"
+        query = "SELECT dossier_, dgbk_ref, fak__ref, bkj__ref, peri_ref, kla__ref, cde___ap FROM hafgfk__ WHERE fak__ref=%s AND cde___ap != ''"
         cur.execute(query, (id))
         result = cur.fetchone()
         cur.close()

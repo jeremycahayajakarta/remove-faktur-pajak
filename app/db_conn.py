@@ -1,4 +1,5 @@
 import pymysql
+import pymssql
 
 def connect_db():
     conn = pymysql.connect(
@@ -10,3 +11,11 @@ def connect_db():
         cursorclass=pymysql.cursors.DictCursor)
     return conn
 
+def connect_db_server():
+    conn = pymssql.connect(
+        server="CERM-DATA\CRMDB",
+        user="Cermsys",
+        password="SysCerm01.",
+        database="sqlb00test",
+        tds_version="7.0")
+    return conn

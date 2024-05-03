@@ -1,5 +1,5 @@
 from flask import jsonify, make_response, request
-from app.db_conn import connect_db
+from app.db_conn import connect_db, connect_db_server
 
 
 class Faktur:
@@ -17,14 +17,14 @@ class Faktur:
             response, status = {"data": result,
                                 "message": "Data retrieved"}, 200
         cur.close()
-        return make_response(jsonify(response)), status
+        return make_response(jsonify(response), status)
 
     @staticmethod
     def get_faktur_by_id():
         # Req Body
         data = request.get_json()
         if data is None:
-            return make_response(jsonify({"message": "No data inside request body"})), 400
+            return make_response(jsonify({"message": "No data inside request body"}), 400)
 
         id = data.get('id')
 
@@ -40,14 +40,14 @@ class Faktur:
         else:
             response = {"data": result, "message": "Data retrieved"}
         cur.close()
-        return make_response(jsonify(response)), 200
+        return make_response(jsonify(response), 200)
 
     @staticmethod
     def get_faktur_by_date():
         # Req Body
         data = request.get_json()
         if data is None:
-            return make_response(jsonify({"message": "No data inside request body"})), 400
+            return make_response(jsonify({"message": "No data inside request body"}), 400)
 
         start_date = data.get('start_date')
         end_date = data.get('end_date')
@@ -66,14 +66,14 @@ class Faktur:
             response = {"data": result,
                         "message": "Data retrieved"}
         cur.close()
-        return make_response(jsonify(response)), 200
+        return make_response(jsonify(response), 200)
 
     @staticmethod
     def remove_faktur():
         # Req Body
         data = request.get_json()
         if data is None:
-            return make_response(jsonify({"message": "No data inside request body"})), 400
+            return make_response(jsonify({"message": "No data inside request body"}), 400)
         id = data['id']
         year = data['year']
 
@@ -97,7 +97,7 @@ class Faktur:
         cur.close()
         conn.commit()
 
-        return make_response(jsonify(response)), status
+        return make_response(jsonify(response), status)
 
     @staticmethod
     def get_all_logs():
@@ -118,4 +118,4 @@ class Faktur:
             row['jam_remove'] = str(row['jam_remove'])
 
         cur.close()
-        return make_response(jsonify(response)), status
+        return make_response(jsonify(response), status)

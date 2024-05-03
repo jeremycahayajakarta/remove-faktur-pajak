@@ -1,9 +1,14 @@
 
-from flask import Blueprint
+from flask import Blueprint, render_template, jsonify
 from .._mods._mods_faktur import Faktur
+import json
 
 faktur = Blueprint('faktur', __name__)
 
+@faktur.route('/')
+def home():
+    data = Faktur.get_all_faktur().response
+    return render_template('home.html', data=json.loads(data[0].decode('utf-8'))['data'])
 
 @faktur.route('/faktur', methods=['GET'])
 def get_all_faktur():

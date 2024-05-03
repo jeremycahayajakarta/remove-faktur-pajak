@@ -16,7 +16,7 @@ def get_all_faktur_template():
 
 @faktur.route('/get-id')
 def get_faktur_by_id_template():
-    data = get_faktur_by_id().response
+    data = get_all_faktur().response
     return render_template('faktur_pajak.html', data=json.loads(data[0].decode('utf-8'))['data'])
 
 @faktur.route('/faktur', methods=['GET'])

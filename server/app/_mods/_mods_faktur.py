@@ -34,7 +34,7 @@ class Faktur:
         if result is None:
             response = {"message": "No data with ID {}".format(id)}
         else:
-            response = {"data": result, "message": "Data retrieved"}
+            response = {"data": [result], "message": "Data retrieved"}
         cur.close()
         return make_response(jsonify(response), 200)
 

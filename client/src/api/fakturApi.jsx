@@ -22,7 +22,6 @@ const getFakturById = async (id) => {
         "Access-Control-Allow-Origin": "*",
       },
     });
-    console.log(id);
     const data = response.json();
     return data;
   } catch (error) {

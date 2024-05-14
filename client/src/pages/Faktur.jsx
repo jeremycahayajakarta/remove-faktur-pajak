@@ -27,9 +27,8 @@ const Faktur = () => {
 
   const handleSubmit = async () => {
     try {
-      console.log(inputValue);
-      const result = await fakturApi.getFakturById(parseInt(inputValue));
-      console.log(result);
+      const faktur = await fakturApi.getFakturById(inputValue);
+      setFaktur(faktur["data"]);
     } catch (error) {
       console.error("Error receiving value: ", error);
     }
@@ -66,41 +65,45 @@ const Faktur = () => {
             Submit
           </Button>
         </FormControl>
-        <TableContainer component={Paper}>
-          <Table sx={{ minWidth: 650 }} size="small" aria-label="a dense table">
-            <TableHead>
-              <TableRow>
-                <TableCell>Site</TableCell>
-                <TableCell align="right">Jurnal ID</TableCell>
-                <TableCell align="right">Invoice</TableCell>
-                <TableCell align="right">Year</TableCell>
-                <TableCell align="right">Periode</TableCell>
-                <TableCell align="right">Customer ID</TableCell>
-                <TableCell align="right">Faktur Pajak</TableCell>
-                <TableCell align="right">User</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {faktur.map((item) => (
-                <TableRow
-                  key={item.fak__ref}
-                  sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
-                >
-                  <TableCell component="th" scope="row">
-                    {item.dossier_}
-                  </TableCell>
-                  <TableCell align="right">{item.dgbk_ref}</TableCell>
-                  <TableCell align="right">{item.fak__ref}</TableCell>
-                  <TableCell align="right">{item.bkj__ref}</TableCell>
-                  <TableCell align="right">{item.peri_ref}</TableCell>
-                  <TableCell align="right">{item.kla__ref}</TableCell>
-                  <TableCell align="right">{item.cde___ap}</TableCell>
-                  <TableCell align="right">CMIS User</TableCell>
+        {faktur ? (
+          <TableContainer component={Paper}>
+            <Table sx={{ minWidth: 650 }} size="small">
+              <TableHead>
+                <TableRow>
+                  <TableCell>Site</TableCell>
+                  <TableCell align="right">Jurnal ID</TableCell>
+                  <TableCell align="right">Invoice</TableCell>
+                  <TableCell align="right">Year</TableCell>
+                  <TableCell align="right">Periode</TableCell>
+                  <TableCell align="right">Customer ID</TableCell>
+                  <TableCell align="right">Faktur Pajak</TableCell>
+                  <TableCell align="right">User</TableCell>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
+              </TableHead>
+              <TableBody>
+                {faktur.map((item) => (
+                  <TableRow
+                    key={item.fak__ref}
+                    sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+                  >
+                    <TableCell component="th" scope="row">
+                      {item.dossier_}
+                    </TableCell>
+                    <TableCell align="right">{item.dgbk_ref}</TableCell>
+                    <TableCell align="right">{item.fak__ref}</TableCell>
+                    <TableCell align="right">{item.bkj__ref}</TableCell>
+                    <TableCell align="right">{item.peri_ref}</TableCell>
+                    <TableCell align="right">{item.kla__ref}</TableCell>
+                    <TableCell align="right">{item.cde___ap}</TableCell>
+                    <TableCell align="right">CMIS User</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        ) : (
+          <div>No data</div>
+        )}
       </Container>
     </div>
   );

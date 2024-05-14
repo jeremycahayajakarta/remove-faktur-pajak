@@ -30,4 +30,22 @@ const getFakturById = async (id) => {
   }
 };
 
-export default { getAllFaktur, getFakturById };
+
+const getFakturByDate = async (start_date, end_date) => {
+  try {
+    const response = await fetch(`${SERVER_BASE_URL}/faktur?start_date=${start_date}&end_date=${end_date}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        "Access-Control-Allow-Origin": "*",
+      },
+    });
+    const data = response.json();
+    return data;
+  } catch (error) {
+    console.error("Error fetching data: ", error);
+    throw error;
+  }
+};
+
+export default { getAllFaktur, getFakturById, getFakturByDate };

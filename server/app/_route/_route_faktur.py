@@ -12,17 +12,15 @@ def home():
 @faktur.route('/faktur', methods=['GET'])
 @cross_origin()
 def get_all_faktur():
-    if not request.args.get('id'):
-        return Faktur.get_all_faktur()
-    else:
+    if request.args.get('id'):
         id = request.args.get('id')
         return Faktur.get_faktur_by_id(id)
-
-
-@faktur.route('/faktur/date', methods=['GET'])
-@cross_origin()
-def get_faktur_by_date():
-    return Faktur.get_faktur_by_date()
+    elif request.args.get('start_date') and request.args.get('end_date'):
+        start_date = request.args.get('start_date')
+        end_date = request.args.get('end_date')
+        return Faktur.get_faktur_by_date(start_date, end_date)
+    else:
+        return Faktur.get_all_faktur()
 
 
 @faktur.route('/remove', methods=['POST'])

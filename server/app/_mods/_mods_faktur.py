@@ -39,15 +39,10 @@ class Faktur:
         return make_response(jsonify(response), 200)
 
     @staticmethod
-    def get_faktur_by_date():
-        # Req Body
-        data = request.get_json()
-        if data is None:
-            return make_response(jsonify({"message": "No data inside request body"}), 400)
-
-        start_date = data.get('start_date')
-        end_date = data.get('end_date')
-
+    def get_faktur_by_date(start_date, end_date):
+        if start_date is None or end_date is None:
+            return make_response(jsonify({"message": "No date"}), 400)
+        
         conn = connect_db()
         cur = conn.cursor()
 

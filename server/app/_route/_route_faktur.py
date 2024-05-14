@@ -1,7 +1,7 @@
 
 from flask import Blueprint, render_template, request
 from .._mods._mods_faktur import Faktur
-import json
+from flask_cors import cross_origin
 
 faktur = Blueprint('faktur', __name__)
 
@@ -10,6 +10,7 @@ def home():
     return render_template('home.html')
 
 @faktur.route('/faktur', methods=['GET'])
+@cross_origin()
 def get_all_faktur():
     if not request.args.get('id'):
         return Faktur.get_all_faktur()
@@ -19,6 +20,7 @@ def get_all_faktur():
 
 
 @faktur.route('/faktur/date', methods=['GET'])
+@cross_origin()
 def get_faktur_by_date():
     return Faktur.get_faktur_by_date()
 

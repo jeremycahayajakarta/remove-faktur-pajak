@@ -20,13 +20,9 @@ class Faktur:
         return make_response(jsonify(response), status)
 
     @staticmethod
-    def get_faktur_by_id():
-        # Req Body
-        data = request.get_json()
-        if data is None:
+    def get_faktur_by_id(id):
+        if id is None:
             return make_response(jsonify({"message": "No data inside request body"}), 400)
-
-        id = data.get('id')
 
         conn = connect_db()
         cur = conn.cursor()

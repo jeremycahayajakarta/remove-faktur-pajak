@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import {
+  Alert,
   FormControl,
   FormHelperText,
   Input,
@@ -12,11 +13,15 @@ import {
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
-import fakturApi from "../api/fakturApi";
 import dayjs from "dayjs";
+import { useLocation } from "react-router-dom";
+import fakturApi from "../api/fakturApi";
 import TableFaktur from "../components/TableFaktur";
 
 const Faktur = () => {
+  const location = useLocation();
+  const message = location.state?.message;
+
   const [loading, setLoading] = useState(false);
 
   const [faktur, setFaktur] = useState([]);
@@ -33,7 +38,7 @@ const Faktur = () => {
         console.error("Error fetching data: ", error);
       }
     };
-    fetchFaktur();
+    // fetchFaktur();
   }, []);
 
   const handleInputChange = (event) => {
@@ -66,11 +71,23 @@ const Faktur = () => {
 
   const renderContent = () => {
     if (loading) {
-      return <Box alignItems={"center"}><CircularProgress size={60} thickness={5}/></Box>;
+      return (
+        <Box alignItems={"center"}>
+          <CircularProgress size={60} thickness={5} />
+        </Box>
+      );
     } else if (faktur) {
       return <TableFaktur faktur={faktur} />;
     }
-    return <div>No Data</div>;
+    return <div>Select another ID</div>;
+  };
+
+  const renderSuccessfulMessage = () => {
+    if (message) {
+      <Box sx={{ margin: 6 }}>
+        <Alert severity="success">{message}</Alert>
+      </Box>;
+    }
   };
 
   return (
@@ -119,8 +136,6 @@ const Faktur = () => {
             </Button>
           </FormControl>
         </Box>
-
-        {/* {faktur ? <TableFaktur faktur={faktur} /> : <div>No data</div>} */}
         {renderContent()}
       </Container>
     </div>

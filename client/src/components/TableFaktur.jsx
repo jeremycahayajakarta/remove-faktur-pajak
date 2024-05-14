@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback, useState } from "react";
 import {
   Button,
   Table,
@@ -9,8 +9,16 @@ import {
   TableRow,
   Paper,
 } from "@mui/material";
+import DialogRemove from "./DialogRemove";
 
 const TableFaktur = (props) => {
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const openDialog = useCallback(() => {
+    setDialogOpen(true);
+  }, []);
+  const closeDialog = useCallback(() => {
+    setDialogOpen(false);
+  });
   return (
     <TableContainer component={Paper}>
       <Table sx={{ minWidth: 650 }} size="small">
@@ -44,7 +52,20 @@ const TableFaktur = (props) => {
               <TableCell align="right">{item.cde___ap}</TableCell>
               <TableCell align="right">CMIS User</TableCell>
               <TableCell align="right">
-                <Button variant="contained" color="error" size="small">Remove</Button>
+                <Button
+                  variant="contained"
+                  color="error"
+                  size="small"
+                  onClick={openDialog}
+                >
+                  Remove
+                </Button>
+                <DialogRemove
+                  open={dialogOpen}
+                  handleClose={closeDialog}
+                  id={item.fak__ref}
+                  year={item.bkj__ref}
+                />
               </TableCell>
             </TableRow>
           ))}

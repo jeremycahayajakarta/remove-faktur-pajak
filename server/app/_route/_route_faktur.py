@@ -24,6 +24,7 @@ def get_all_faktur():
 
 
 @faktur.route('/remove', methods=['POST'])
+@cross_origin()
 def remove_faktur():
     return Faktur.remove_faktur()
 

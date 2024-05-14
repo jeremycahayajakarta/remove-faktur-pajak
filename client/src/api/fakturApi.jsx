@@ -30,16 +30,18 @@ const getFakturById = async (id) => {
   }
 };
 
-
 const getFakturByDate = async (start_date, end_date) => {
   try {
-    const response = await fetch(`${SERVER_BASE_URL}/faktur?start_date=${start_date}&end_date=${end_date}`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        "Access-Control-Allow-Origin": "*",
-      },
-    });
+    const response = await fetch(
+      `${SERVER_BASE_URL}/faktur?start_date=${start_date}&end_date=${end_date}`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          "Access-Control-Allow-Origin": "*",
+        },
+      }
+    );
     const data = response.json();
     return data;
   } catch (error) {
@@ -48,4 +50,25 @@ const getFakturByDate = async (start_date, end_date) => {
   }
 };
 
-export default { getAllFaktur, getFakturById, getFakturByDate };
+const removeFaktur = async (invoice_id, year) => {
+  try {
+    const response = await fetch(`${SERVER_BASE_URL}/remove`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Access-Control-Allow-Origin": "*",
+      },
+      body: JSON.stringify({
+        id: invoice_id,
+        year: year,
+      }),
+    });
+    const data = response.json();
+    return data;
+  } catch (error) {
+    console.error("Error removing faktur: ", error);
+    throw error;
+  }
+};
+
+export default { getAllFaktur, getFakturById, getFakturByDate, removeFaktur };

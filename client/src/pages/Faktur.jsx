@@ -9,7 +9,10 @@ import {
   Container,
   Box,
   CircularProgress,
+  Collapse,
+  IconButton
 } from "@mui/material";
+import CloseIcon from "@mui/icons-material/Close";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
@@ -19,8 +22,10 @@ import fakturApi from "../api/fakturApi";
 import TableFaktur from "../components/TableFaktur";
 
 const Faktur = () => {
+  const [openAlert, setOpenAlert] = useState(true);
+
   const location = useLocation();
-  const message = location.state?.message;
+  const message = location.state?.message || null;
 
   const [loading, setLoading] = useState(false);
 
@@ -49,7 +54,7 @@ const Faktur = () => {
   const handleSubmitID = async () => {
     try {
       const faktur = await fakturApi.getFakturById(inputValue);
-      setFaktur(faktur["data"]);
+      setFaktur(faktur.data);
     } catch (error) {
       console.error("Error receiving value: ", error);
     }
@@ -61,7 +66,7 @@ const Faktur = () => {
       const start_date = dayjs(startDate).format("YYYY-MM-DD");
       const end_date = dayjs(endDate).format("YYYY-MM-DD");
       const faktur = await fakturApi.getFakturByDate(start_date, end_date);
-      setFaktur(faktur["data"]);
+      setFaktur(faktur.data);
     } catch (error) {
       console.error("Error receiving value: ", error);
     } finally {
@@ -84,61 +89,81 @@ const Faktur = () => {
 
   const renderSuccessfulMessage = () => {
     if (message) {
-      <Box sx={{ margin: 6 }}>
-        <Alert severity="success">{message}</Alert>
-      </Box>;
+      return (
+        <Box sx={{ margin: 6 }}>
+          <Collapse in={openAlert}>
+            <Alert
+              severity="success"
+              action={
+                <IconButton
+                  aria-label="close"
+                  color="inherit"
+                  size="small"
+                  onClick={() => {
+                    setOpenAlert(false);
+                  }}
+                >
+                  <CloseIcon fontSize="inherit" />
+                </IconButton>
+              }
+            >
+              {message}
+            </Alert>
+          </Collapse>
+        </Box>
+      );
     }
+    return;
   };
 
   return (
-    <div>
-      <Container>
-        <h1>Faktur</h1>
-        <Box sx={{ display: "flex", justifyContent: "space-between" }}>
-          {/* Invoice ID */}
-          <FormControl sx={{ my: 3 }}>
-            <InputLabel htmlFor="my-input">Invoice ID</InputLabel>
-            <Input
-              value={inputValue}
-              onChange={handleInputChange}
-              aria-describedby="my-helper-text"
-            />
-            <FormHelperText id="my-helper-text">
-              Masukkan Invoice ID
-            </FormHelperText>
-            <Button variant="contained" onClick={handleSubmitID}>
-              Submit
-            </Button>
-          </FormControl>
+    <Container>
+      <h1>Faktur</h1>
+      {renderSuccessfulMessage()}
+      <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+        {/* Invoice ID */}
+        <FormControl sx={{ my: 3 }}>
+          <InputLabel htmlFor="my-input">Invoice ID</InputLabel>
+          <Input
+            value={inputValue}
+            onChange={handleInputChange}
+            aria-describedby="my-helper-text"
+          />
+          <FormHelperText id="my-helper-text">
+            Masukkan Invoice ID
+          </FormHelperText>
+          <Button variant="contained" onClick={handleSubmitID}>
+            Submit
+          </Button>
+        </FormControl>
 
-          {/* Date */}
-          <FormControl sx={{ my: 3 }}>
-            <LocalizationProvider dateAdapter={AdapterDayjs}>
-              <DatePicker
-                label="Start Date"
-                format="DD/MM/YYYY"
-                onChange={(date) => {
-                  setStartDate(date);
-                }}
-              />
-            </LocalizationProvider>
-            <LocalizationProvider dateAdapter={AdapterDayjs}>
-              <DatePicker
-                label="End Date"
-                format="DD/MM/YYYY"
-                onChange={(date) => {
-                  setEndDate(date);
-                }}
-              />
-            </LocalizationProvider>
-            <Button variant="contained" onClick={handleSubmitDate}>
-              Submit
-            </Button>
-          </FormControl>
-        </Box>
-        {renderContent()}
-      </Container>
-    </div>
+        {/* Date */}
+        <FormControl sx={{ my: 3 }}>
+          <LocalizationProvider dateAdapter={AdapterDayjs}>
+            <DatePicker
+              label="Start Date"
+              format="DD/MM/YYYY"
+              onChange={(date) => {
+                setStartDate(date);
+              }}
+            />
+          </LocalizationProvider>
+          <LocalizationProvider dateAdapter={AdapterDayjs}>
+            <DatePicker
+              label="End Date"
+              format="DD/MM/YYYY"
+              onChange={(date) => {
+                setEndDate(date);
+              }}
+            />
+          </LocalizationProvider>
+          <Button variant="contained" onClick={handleSubmitDate}>
+            Submit
+          </Button>
+        </FormControl>
+      </Box>
+      {renderContent()}
+    </Container>
   );
 };
 

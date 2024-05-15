@@ -30,8 +30,11 @@ const TableFaktur = (props) => {
       if (!response.ok) {
         throw new Error("Failed to remove faktur pajak");
       }
+      // navigate("/faktur", {
+      //   state: { message: "Faktur pajak berhasil diremove" },
+      // });
       navigate("/faktur", {
-        state: { message: "Faktur pajak berhasil diremove" },
+        state: { message: `Faktur pajak ${id} tahun ${year} berhasil diremove` },
       });
     } catch (error) {
       console.error("Failed to remove faktur pajak: ", error);

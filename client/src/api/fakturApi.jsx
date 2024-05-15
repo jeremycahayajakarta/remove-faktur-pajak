@@ -63,7 +63,8 @@ const removeFaktur = async (invoice_id, year) => {
         year: year,
       }),
     });
-    const data = response.json();
+    console.log(response);
+    const data = response;
     return data;
   } catch (error) {
     console.error("Error removing faktur: ", error);

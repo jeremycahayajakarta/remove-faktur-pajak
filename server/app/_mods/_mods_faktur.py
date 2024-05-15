@@ -87,8 +87,6 @@ class Faktur:
         response, status = {"message": msg}, 200
         cur.close()
         conn.commit()
-        
-        print(make_response(jsonify(response), status))
 
         return make_response(jsonify(response), status)
 

@@ -77,6 +77,7 @@ class Faktur:
         cur.execute(query, (id, year))
         fp = cur.fetchone()
         
+        # Remove faktur pajak
         query = "UPDATE hafgfk__ SET cde___ap = '' WHERE fak__ref = %s AND bkj__ref=%s"
         cur.execute(query, (id, year))
         query = "UPDATE vkpvlg__ SET dgbk_ref = '', bkj__ref = '', fak__ref = '' WHERE fak__ref=%s AND bkj__ref=%s"

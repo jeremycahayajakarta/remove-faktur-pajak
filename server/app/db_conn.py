@@ -11,6 +11,7 @@ def connect_db():
         cursorclass=pymysql.cursors.DictCursor)
     return conn
 
+# db test
 def connect_db_server():
     conn = pymssql.connect(
         server="CERM-DATA\CRMDB",

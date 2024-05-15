@@ -9,6 +9,7 @@ import { useNavigate } from "react-router-dom";
 import fakturApi from "../api/fakturApi";
 
 const DialogRemove = (props) => {
+  const [currentItem, setCurrentItem] = useState(null)
   const navigate = useNavigate();
   const open = props.open;
   const handleClose = props.handleClose;

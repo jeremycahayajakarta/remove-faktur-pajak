@@ -46,7 +46,7 @@ class Faktur:
         conn = connect_db()
         cur = conn.cursor()
 
-        query = "SELECT dossier_, dgbk_ref, fak__ref, bkj__ref, peri_ref, kla__ref, cde___ap, dok__dat FROM hafgfk__ WHERE dok__dat BETWEEN %s AND %s"
+        query = "SELECT dossier_, dgbk_ref, fak__ref, bkj__ref, peri_ref, kla__ref, cde___ap, dok__dat FROM hafgfk__ WHERE dok__dat BETWEEN %s AND %s AND cde___ap != ''"
         cur.execute(query, (start_date, end_date))
         result = cur.fetchall()
         cur.close()
@@ -87,6 +87,8 @@ class Faktur:
         response, status = {"message": msg}, 200
         cur.close()
         conn.commit()
+        
+        print(make_response(jsonify(response), status))
 
         return make_response(jsonify(response), status)
 

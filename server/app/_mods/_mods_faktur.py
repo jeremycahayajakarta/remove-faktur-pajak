@@ -72,6 +72,11 @@ class Faktur:
         conn = connect_db_server()
         cur = conn.cursor()
 
+        # Get cde___ap (faktur pajak)
+        query = "SELECT cde___ap FROM hafgfk__ WHERE fak__ref = %s AND bkj__ref=%s"
+        cur.execute(query, (id, year))
+        fp = cur.fetchone()
+        
         query = "UPDATE hafgfk__ SET cde___ap = '' WHERE fak__ref = %s AND bkj__ref=%s"
         cur.execute(query, (id, year))
         query = "UPDATE vkpvlg__ SET dgbk_ref = '', bkj__ref = '', fak__ref = '' WHERE fak__ref=%s AND bkj__ref=%s"
@@ -81,15 +86,32 @@ class Faktur:
         result = cur.rowcount
         if result == 1:
             msg = "Value {} is removed".format(id)
-            # log = "INSERT INTO log_del_fp (user_id, no_inv, no_fps, alasan, tgl_remove, jam_remove) VALUES (1, 2, 3, 'Hapus faktur', CURDATE(), CURTIME())"
-            # cur.execute(log)
+            Faktur.insert_new_log(id, fp[0])
         else:
             msg = "There is no value"
         response, status = {"message": msg}, 200
+        
         cur.close()
         conn.commit()
 
         return make_response(jsonify(response), status)
+    
+    @staticmethod
+    def insert_new_log(invoice_id, no_faktur):
+        conn = connect_db()
+        cur = conn.cursor()
+        
+        query = "INSERT INTO log_del_fp (user_id, no_inv, no_fps, alasan, tgl_remove, jam_remove) VALUES (1, %s, %s, 'Hapus faktur', CURDATE(), CURTIME())"
+        cur.execute(query, (invoice_id, no_faktur))
+        
+        # result = cur.rowcount
+        # if result == 1:
+        #     msg = "Log remove faktur {} added".format(invoice_id)
+        # else:
+        #     msg = "There is no value"
+        # response, status = {"message": msg}, 200
+        cur.close()
+        conn.commit()
 
     @staticmethod
     def get_all_logs():

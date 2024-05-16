@@ -1,49 +1,37 @@
 import React, { useEffect, useState } from "react";
 import {
-  Alert,
+  Box,
+  Button,
+  Container,
   FormControl,
   FormHelperText,
   Input,
   InputLabel,
-  Button,
-  Container,
-  Box,
   CircularProgress,
-  Collapse,
-  IconButton
 } from "@mui/material";
-import CloseIcon from "@mui/icons-material/Close";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import dayjs from "dayjs";
-import { useLocation } from "react-router-dom";
 import fakturApi from "../api/fakturApi";
-import TableFaktur from "../components/TableFaktur";
+import TableLog from "../components/TableLog";
 
-const Faktur = () => {
-  const [openAlert, setOpenAlert] = useState(true);
-
-  const location = useLocation();
-  const message = location.state?.message || null;
-
+const Log = () => {
+  const [log, setLog] = useState([]);
   const [loading, setLoading] = useState(false);
-
-  const [faktur, setFaktur] = useState([]);
   const [inputValue, setInputValue] = useState("");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
-
   useEffect(() => {
-    const fetchFaktur = async () => {
+    const fetchLog = async () => {
       try {
-        const faktur = await fakturApi.getAllFaktur();
-        setFaktur(faktur.data);
+        const log = await fakturApi.getAllLog();
+        setLog(log.data);
       } catch (error) {
         console.error("Error fetching data: ", error);
       }
     };
-    // fetchFaktur();
+    fetchLog();
   }, []);
 
   const handleInputChange = (event) => {
@@ -51,22 +39,22 @@ const Faktur = () => {
     setInputValue(event.target.value);
   };
 
-  const handleSubmitID = async () => {
+  const handleSubmitLogID = async () => {
     try {
-      const faktur = await fakturApi.getFakturById(inputValue);
-      setFaktur(faktur.data);
+      const log = await fakturApi.getLogById(inputValue);
+      setLog(log.data);
     } catch (error) {
       console.error("Error receiving value: ", error);
     }
   };
 
-  const handleSubmitDate = async () => {
+  const handleSubmitLogDate = async () => {
     try {
       setLoading(true);
       const start_date = dayjs(startDate).format("YYYY-MM-DD");
       const end_date = dayjs(endDate).format("YYYY-MM-DD");
-      const faktur = await fakturApi.getFakturByDate(start_date, end_date);
-      setFaktur(faktur.data);
+      const log = await fakturApi.getLogByDate(start_date, end_date);
+      setLog(log.data);
     } catch (error) {
       console.error("Error receiving value: ", error);
     } finally {
@@ -81,45 +69,15 @@ const Faktur = () => {
           <CircularProgress size={60} thickness={5} />
         </Box>
       );
-    } else if (faktur) {
-      return <TableFaktur faktur={faktur} />;
+    } else if (log) {
+      return <TableLog log={log} />;
     }
     return <div>Select another ID</div>;
   };
 
-  const renderSuccessfulMessage = () => {
-    if (message) {
-      return (
-        <Box sx={{ margin: 6 }}>
-          <Collapse in={openAlert}>
-            <Alert
-              severity="success"
-              action={
-                <IconButton
-                  aria-label="close"
-                  color="inherit"
-                  size="small"
-                  onClick={() => {
-                    setOpenAlert(false);
-                  }}
-                >
-                  <CloseIcon fontSize="inherit" />
-                </IconButton>
-              }
-            >
-              {message}
-            </Alert>
-          </Collapse>
-        </Box>
-      );
-    }
-    return;
-  };
-
   return (
     <Container>
-      <h1>Faktur</h1>
-      {renderSuccessfulMessage()}
+      <h1>Log</h1>
       <Box sx={{ display: "flex", justifyContent: "space-between" }}>
         {/* Invoice ID */}
         <FormControl sx={{ my: 3 }}>
@@ -132,7 +90,7 @@ const Faktur = () => {
           <FormHelperText id="my-helper-text">
             Masukkan Invoice ID
           </FormHelperText>
-          <Button variant="contained" onClick={handleSubmitID}>
+          <Button variant="contained" onClick={handleSubmitLogID}>
             Submit
           </Button>
         </FormControl>
@@ -157,7 +115,7 @@ const Faktur = () => {
               }}
             />
           </LocalizationProvider>
-          <Button variant="contained" onClick={handleSubmitDate}>
+          <Button variant="contained" onClick={handleSubmitLogDate}>
             Submit
           </Button>
         </FormControl>
@@ -167,4 +125,4 @@ const Faktur = () => {
   );
 };
 
-export default Faktur;
+export default Log;

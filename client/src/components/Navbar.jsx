@@ -37,8 +37,9 @@ const Navbar = () => {
     } else if (page === "Faktur Pajak") {
       // setAnchorElNav("Faktur Pajak");
       navigate("/faktur");
-    } else {
+    } else if (page === "Log"){
       // setAnchorElNav("Log");
+      navigate("/log");
     }
   };
 

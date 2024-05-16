@@ -127,10 +127,59 @@ class Faktur:
         else:
             response, status = {"data": result,
                                 "message": "Data retrieved"}, 200
-
+        
         for row in result:
             row['tgl_remove'] = row['tgl_remove'].strftime("%d %b %Y")
             row['jam_remove'] = str(row['jam_remove'])
 
         cur.close()
         return make_response(jsonify(response), status)
+    
+    @staticmethod
+    def get_log_by_id(id):
+        if id is None:
+            return make_response(jsonify({"message": "No data inside request body"}), 400)
+
+        conn = connect_db()
+        cur = conn.cursor()
+
+        query = "SELECT user_id, no_inv, no_fps, alasan, tgl_remove, jam_remove FROM log_del_fp WHERE no_inv=%s"
+        cur.execute(query, (id))
+        result = cur.fetchone()
+        cur.close()
+        if result is None:
+            response = {"message": "No data with ID {}".format(id)}
+        else:
+            response = {"data": [result], "message": "Data retrieved"}
+        
+        result['tgl_remove'] = result['tgl_remove'].strftime("%d %b %Y")
+        result['jam_remove'] = str(result['jam_remove'])
+
+        cur.close()
+        return make_response(jsonify(response), 200)
+    
+    @staticmethod
+    def get_log_by_date(start_date, end_date):
+        if start_date is None or end_date is None:
+            return make_response(jsonify({"message": "No date"}), 400)
+        
+        conn = connect_db()
+        cur = conn.cursor()
+
+        query = "SELECT user_id, no_inv, no_fps, alasan, tgl_remove, jam_remove FROM log_del_fp WHERE tgl_remove BETWEEN %s AND %s"
+        cur.execute(query, (start_date, end_date))
+        result = cur.fetchall()
+        cur.close()
+        if result is None:
+            response = {"message": "No data between {} and {}".format(
+                start_date, end_date)}
+        else:
+            response = {"data": result,
+                        "message": "Data retrieved"}
+        
+        for row in result:
+            row['tgl_remove'] = row['tgl_remove'].strftime("%d %b %Y")
+            row['jam_remove'] = str(row['jam_remove'])
+            
+        cur.close()
+        return make_response(jsonify(response), 200)

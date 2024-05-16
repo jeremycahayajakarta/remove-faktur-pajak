@@ -72,4 +72,43 @@ const removeFaktur = async (invoice_id, year) => {
   }
 };
 
-export default { getAllFaktur, getFakturById, getFakturByDate, removeFaktur };
+const getAllLog = async () => {
+  try {
+    const response = await fetch(`${SERVER_BASE_URL}/log`, {
+      cache: "no-store",
+    });
+    const data = response.json();
+    return data;
+  } catch (error) {
+    console.error("Error fetching data: ", error);
+    throw error;
+  }
+};
+
+const getLogById = async (id) => {
+  try {
+    const response = await fetch(`${SERVER_BASE_URL}/log?id=${id}`, {
+      cache: "no-store",
+    });
+    const data = response.json();
+    return data;
+  } catch (error) {
+    console.error("Error fetching data: ", error);
+    throw error;
+  }
+}
+
+const getLogByDate = async (start_date, end_date) => {
+  try {
+    const response = await fetch(`${SERVER_BASE_URL}/log?start_date=${start_date}&end_date=${end_date}`, {
+      cache: "no-store",
+    });
+    const data = response.json();
+    return data;
+  } catch (error) {
+    console.error("Error fetching data: ", error);
+    throw error;
+  }
+}
+
+export default { getAllFaktur, getFakturById, getFakturByDate, removeFaktur, getAllLog, getLogById, getLogByDate };

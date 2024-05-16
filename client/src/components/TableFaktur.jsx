@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react";
+import React from "react";
 import {
   Button,
   Dialog,
@@ -30,9 +30,6 @@ const TableFaktur = (props) => {
       if (!response.ok) {
         throw new Error("Failed to remove faktur pajak");
       }
-      // navigate("/faktur", {
-      //   state: { message: "Faktur pajak berhasil diremove" },
-      // });
       navigate("/faktur", {
         state: { message: `Faktur pajak ${id} tahun ${year} berhasil diremove` },
       });

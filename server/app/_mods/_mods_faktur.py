@@ -8,7 +8,7 @@ class Faktur:
         conn = connect_db_server()
         cur = conn.cursor(as_dict=True)
 
-        query = "SELECT dossier_, dgbk_ref, fak__ref, bkj__ref, peri_ref, kla__ref, cde___ap FROM hafgfk__ WHERE cde___ap != '' ORDER BY bkj__ref DESC"
+        query = "SELECT dossier_, dgbk_ref, fak__ref, bkj__ref, peri_ref, kla__ref, cde___ap FROM hafgfk__ WHERE cde___ap != '' ORDER BY bkj__ref DESC, fak__ref DESC"
         # query = "SELECT dossier_, dgbk_ref, fak__ref, bkj__ref, peri_ref, kla__ref, cde___ap FROM hafgfk__ WHERE cde___ap != '' LIMIT 10"
         cur.execute(query)
         result = cur.fetchall()
@@ -151,10 +151,9 @@ class Faktur:
             response = {"message": "No data with ID {}".format(id)}
         else:
             response = {"data": [result], "message": "Data retrieved"}
+            result['tgl_remove'] = result['tgl_remove'].strftime("%d %b %Y")
+            result['jam_remove'] = str(result['jam_remove'])
         
-        result['tgl_remove'] = result['tgl_remove'].strftime("%d %b %Y")
-        result['jam_remove'] = str(result['jam_remove'])
-
         cur.close()
         return make_response(jsonify(response), 200)
     

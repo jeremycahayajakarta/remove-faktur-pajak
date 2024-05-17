@@ -1,0 +1,10 @@
+.demo-logo-vertical {
+  /* Add your styles here */
+  /* Example: */
+  height: 32px;
+  width: 100px;
+  background-color: #f0f2f5;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}

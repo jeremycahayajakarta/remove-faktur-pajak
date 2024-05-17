@@ -1,38 +1,22 @@
 import React, { useEffect, useState } from "react";
-import {
-  Alert,
-  FormControl,
-  FormHelperText,
-  Input,
-  InputLabel,
-  Button,
-  Container,
-  Box,
-  CircularProgress,
-  Collapse,
-  IconButton
-} from "@mui/material";
-import CloseIcon from "@mui/icons-material/Close";
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import { Alert, Input, Button, Col, Row, Flex, DatePicker } from "antd";
+import { useNavigate } from "react-router-dom";
+
 import dayjs from "dayjs";
 import { useLocation } from "react-router-dom";
 import fakturApi from "../api/fakturApi";
 import TableFaktur from "../components/TableFaktur";
+const { RangePicker } = DatePicker;
 
 const Faktur = () => {
   const [openAlert, setOpenAlert] = useState(true);
 
-  const location = useLocation();
-  const message = location.state?.message || null;
-
-  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+  const [successfulMessage, setSuccessfulMessage] = useState(null);
 
   const [faktur, setFaktur] = useState([]);
   const [inputValue, setInputValue] = useState("");
-  const [startDate, setStartDate] = useState("");
-  const [endDate, setEndDate] = useState("");
+  const [dates, setDates] = useState([]);
 
   useEffect(() => {
     const fetchFaktur = async () => {
@@ -43,7 +27,7 @@ const Faktur = () => {
         console.error("Error fetching data: ", error);
       }
     };
-    // fetchFaktur();
+    fetchFaktur();
   }, []);
 
   const handleInputChange = (event) => {
@@ -60,110 +44,84 @@ const Faktur = () => {
     }
   };
 
+  const handleRemoveFaktur = async (id, year) => {
+    try {
+      const response = await fakturApi.removeFaktur(id, year);
+      console.log(response);
+      if (!response.ok) {
+        throw new Error("Failed to remove faktur pajak");
+      }
+
+      const updatedData = faktur.filter((item) => item.fak__ref !== id);
+      setFaktur(updatedData);
+      setSuccessfulMessage(
+        `Faktur pajak ${id} tahun ${year} berhasil diremove`
+      );
+      navigate("/faktur");
+    } catch (error) {
+      console.error("Failed to remove faktur pajak: ", error);
+    }
+  };
+
+  const onChangeDate = (dates, dateStrings) => {
+    setDates(dates);
+  };
+
   const handleSubmitDate = async () => {
     try {
-      setLoading(true);
-      const start_date = dayjs(startDate).format("YYYY-MM-DD");
-      const end_date = dayjs(endDate).format("YYYY-MM-DD");
+      const start_date = dayjs(dates[0]).format("YYYY-MM-DD");
+      const end_date = dayjs(dates[1]).format("YYYY-MM-DD");
       const faktur = await fakturApi.getFakturByDate(start_date, end_date);
       setFaktur(faktur.data);
     } catch (error) {
       console.error("Error receiving value: ", error);
-    } finally {
-      setLoading(false);
     }
-  };
-
-  const renderContent = () => {
-    if (loading) {
-      return (
-        <Box alignItems={"center"}>
-          <CircularProgress size={60} thickness={5} />
-        </Box>
-      );
-    } else if (faktur) {
-      return <TableFaktur faktur={faktur} />;
-    }
-    return <div>Select another ID</div>;
-  };
-
-  const renderSuccessfulMessage = () => {
-    if (message) {
-      return (
-        <Box sx={{ margin: 6 }}>
-          <Collapse in={openAlert}>
-            <Alert
-              severity="success"
-              action={
-                <IconButton
-                  aria-label="close"
-                  color="inherit"
-                  size="small"
-                  onClick={() => {
-                    setOpenAlert(false);
-                  }}
-                >
-                  <CloseIcon fontSize="inherit" />
-                </IconButton>
-              }
-            >
-              {message}
-            </Alert>
-          </Collapse>
-        </Box>
-      );
-    }
-    return;
   };
 
   return (
-    <Container>
-      <h1>Faktur</h1>
-      {renderSuccessfulMessage()}
-      <Box sx={{ display: "flex", justifyContent: "space-between" }}>
-        {/* Invoice ID */}
-        <FormControl sx={{ my: 3 }}>
-          <InputLabel htmlFor="my-input">Invoice ID</InputLabel>
-          <Input
-            value={inputValue}
-            onChange={handleInputChange}
-            aria-describedby="my-helper-text"
-          />
-          <FormHelperText id="my-helper-text">
-            Masukkan Invoice ID
-          </FormHelperText>
-          <Button variant="contained" onClick={handleSubmitID}>
-            Submit
-          </Button>
-        </FormControl>
-
-        {/* Date */}
-        <FormControl sx={{ my: 3 }}>
-          <LocalizationProvider dateAdapter={AdapterDayjs}>
-            <DatePicker
-              label="Start Date"
-              format="DD/MM/YYYY"
-              onChange={(date) => {
-                setStartDate(date);
-              }}
-            />
-          </LocalizationProvider>
-          <LocalizationProvider dateAdapter={AdapterDayjs}>
-            <DatePicker
-              label="End Date"
-              format="DD/MM/YYYY"
-              onChange={(date) => {
-                setEndDate(date);
-              }}
-            />
-          </LocalizationProvider>
-          <Button variant="contained" onClick={handleSubmitDate}>
-            Submit
-          </Button>
-        </FormControl>
-      </Box>
-      {renderContent()}
-    </Container>
+    <>
+      {/* TODO: If the alert is closed and page isn't refreshed, the alert will not be shown again */}
+      {successfulMessage && (
+        <Alert message={successfulMessage} type="success" showIcon closable />
+      )}
+      <Flex justify="space-between" style={{ marginTop: "16px" }}>
+        <Row>
+          <Flex gap={10}>
+            <Col span={18}>
+              <Input
+                placeholder="No Invoice"
+                onChange={handleInputChange}
+                value={inputValue}
+              />
+            </Col>
+            <Col span={6}>
+              <Button type="primary" onClick={handleSubmitID}>
+                Search
+              </Button>
+            </Col>
+          </Flex>
+        </Row>
+        <Row>
+          <Flex gap={10}>
+            <Col span={18}>
+              <RangePicker
+                placeholder={["Dari tanggal", "Sampai tanggal"]}
+                onChange={onChangeDate}
+              />
+            </Col>
+            <Col span={6}>
+              <Button
+                type="primary"
+                onClick={handleSubmitDate}
+              >
+                Search
+              </Button>
+            </Col>
+          </Flex>
+        </Row>
+      </Flex>
+      <TableFaktur faktur={faktur} onRemoveFaktur={handleRemoveFaktur} />
+    </>
   );
 };
 

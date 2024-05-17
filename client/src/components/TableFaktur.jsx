@@ -1,8 +1,5 @@
-import React, { useState } from "react";
+import React from "react";
 import { Table, Button } from "antd";
-import { useNavigate } from "react-router-dom";
-import fakturApi from "../api/fakturApi";
-import DialogRemove from "./DialogRemove";
 
 const TableFaktur = (props) => {
   const { faktur, onRemoveFaktur } = props;
@@ -62,45 +59,10 @@ const TableFaktur = (props) => {
       ),
     },
   ];
-  // const [items, setItems] = useState(null);
-  // const [currentItem, setCurrentItem] = useState(null);
-  // const [isOpen, setIsOpen] = useState(false);
-  
-  // const navigate = useNavigate();
-
-  // const handleRemoveFaktur = async (id, year) => {
-  //   try {
-  //     const response = await fakturApi.removeFaktur(id, year);
-  //     console.log(response);
-  //     if (!response.ok) {
-  //       throw new Error("Failed to remove faktur pajak");
-  //     }
-
-  //     const updatedData = data.filter((item) => item.fak__ref !== id);
-  //     setData(updatedData);
-  //     navigate("/faktur", {
-  //       state: {
-  //         message: `Faktur pajak ${id} tahun ${year} berhasil diremove`,
-  //       },
-  //     });
-  //   } catch (error) {
-  //     console.error("Failed to remove faktur pajak: ", error);
-  //   }
-  // };
-
-  // const handleOpenDialog = (item) => {
-  //   const rowKey = item.fak__ref
-  //   setCurrentItem(rowKey);
-  //   setIsOpen(true);
-  // };
-
-  // const handleCloseDialog = () => {
-  //   setCurrentItem(null);
-  //   setIsOpen(false);
-  // };
 
   return (
     <Table
+      scroll={{ y: 300 }}
       columns={columns}
       style={{ marginTop: "10px" }}
       dataSource={faktur}

@@ -1,6 +1,7 @@
 import React from "react";
 import { TagOutlined, FileTextOutlined } from "@ant-design/icons";
-import { Breadcrumb, Layout, Menu, Table, Typography, theme } from "antd";
+import { Layout, Menu, Typography, theme } from "antd";
+import { Link } from "react-router-dom";
 const { Header, Content, Sider } = Layout;
 const { Title } = Typography;
 
@@ -19,7 +20,7 @@ const MainLayout = ({ children }) => {
   };
 
   const items = [
-    getItem("DMS", "dms", <FileTextOutlined />, [
+    getItem("DMS", "dms", <FileTextOutlined />, null, [
       getItem("Document Management", "3"),
       getItem("Konfigurasi", "4"),
       getItem("Admin Menu QMS", "5"),
@@ -78,7 +79,6 @@ const MainLayout = ({ children }) => {
               }}
             >
               {children}
-              
             </div>
           </Content>
         </Layout>

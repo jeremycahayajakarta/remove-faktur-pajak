@@ -36,6 +36,7 @@ const TableLog = (props) => {
   ];
   return (
     <Table
+      scroll={{ y: 200 }}
       columns={columns}
       style={{ marginTop: "10px" }}
       dataSource={props.log}

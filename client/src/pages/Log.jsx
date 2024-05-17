@@ -15,7 +15,6 @@ const Log = () => {
       try {
         const log = await fakturApi.getAllLog();
         setLog(log.data);
-        console.log(log.data);
       } catch (error) {
         console.error("Error fetching data: ", error);
       }

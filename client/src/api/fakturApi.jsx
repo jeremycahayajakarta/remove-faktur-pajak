@@ -63,7 +63,6 @@ const removeFaktur = async (invoice_id, year) => {
         year: year,
       }),
     });
-    console.log(response);
     const data = response;
     return data;
   } catch (error) {

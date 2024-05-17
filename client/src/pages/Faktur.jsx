@@ -1,33 +1,59 @@
 import React, { useEffect, useState } from "react";
-import { Alert, Input, Button, Col, Row, Flex, DatePicker } from "antd";
+import {
+  Alert,
+  Input,
+  Button,
+  Col,
+  Row,
+  Flex,
+  DatePicker,
+  Card,
+  Spin,
+  Space,
+} from "antd";
 import { useNavigate } from "react-router-dom";
 
 import dayjs from "dayjs";
 import { useLocation } from "react-router-dom";
 import fakturApi from "../api/fakturApi";
 import TableFaktur from "../components/TableFaktur";
+import TableLog from "../components/TableLog";
 const { RangePicker } = DatePicker;
 
 const Faktur = () => {
-  const [openAlert, setOpenAlert] = useState(true);
-
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
   const [successfulMessage, setSuccessfulMessage] = useState(null);
 
   const [faktur, setFaktur] = useState([]);
+  const [log, setLog] = useState([]);
   const [inputValue, setInputValue] = useState("");
   const [dates, setDates] = useState([]);
 
   useEffect(() => {
     const fetchFaktur = async () => {
       try {
+        setLoading(true);
         const faktur = await fakturApi.getAllFaktur();
         setFaktur(faktur.data);
       } catch (error) {
         console.error("Error fetching data: ", error);
+      } finally {
+        setLoading(false);
       }
     };
+
+    const fetchLog = async () => {
+      try {
+        const log = await fakturApi.getAllLog();
+        setLog(log.data);
+      } catch (error) {
+        console.error("Error fetching data: ", error);
+      }
+    };
+
     fetchFaktur();
+    fetchLog();
   }, []);
 
   const handleInputChange = (event) => {
@@ -37,10 +63,13 @@ const Faktur = () => {
 
   const handleSubmitID = async () => {
     try {
+      setLoading(true);
       const faktur = await fakturApi.getFakturById(inputValue);
       setFaktur(faktur.data);
     } catch (error) {
       console.error("Error receiving value: ", error);
+    } finally {
+      setLoading(true);
     }
   };
 
@@ -69,12 +98,15 @@ const Faktur = () => {
 
   const handleSubmitDate = async () => {
     try {
+      setLoading(true);
       const start_date = dayjs(dates[0]).format("YYYY-MM-DD");
       const end_date = dayjs(dates[1]).format("YYYY-MM-DD");
       const faktur = await fakturApi.getFakturByDate(start_date, end_date);
       setFaktur(faktur.data);
     } catch (error) {
       console.error("Error receiving value: ", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -110,17 +142,24 @@ const Faktur = () => {
               />
             </Col>
             <Col span={6}>
-              <Button
-                type="primary"
-                onClick={handleSubmitDate}
-              >
+              <Button type="primary" onClick={handleSubmitDate}>
                 Search
               </Button>
             </Col>
           </Flex>
         </Row>
       </Flex>
-      <TableFaktur faktur={faktur} onRemoveFaktur={handleRemoveFaktur} />
+      {loading ? (
+        <Flex justify="center" gap={"large"} style={{ margin: 20 }}>
+          <Spin size="large" />
+        </Flex>
+      ) : (
+        <TableFaktur faktur={faktur} onRemoveFaktur={handleRemoveFaktur} />
+      )}
+
+      <Card title="Log">
+        <TableLog log={log} />
+      </Card>
     </>
   );
 };

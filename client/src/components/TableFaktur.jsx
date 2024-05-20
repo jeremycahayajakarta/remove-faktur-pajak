@@ -82,13 +82,6 @@ const TableFaktur = (props) => {
         columns={columns}
         style={{ marginTop: "10px" }}
         dataSource={faktur}
-        onRow={(row) => {
-          return {
-            onClick: () => {
-              showModal(row);
-            },
-          };
-        }}
       />
       {selectedRow && (
         <Modal

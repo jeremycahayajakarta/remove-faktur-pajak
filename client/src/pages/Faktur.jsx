@@ -48,6 +48,7 @@ const Faktur = () => {
     const fetchLog = async () => {
       try {
         const log = await fakturApi.getAllLog();
+        console.log(log.data);
         setLog(log.data);
       } catch (error) {
         console.error("Error fetching data: ", error);
@@ -78,13 +79,21 @@ const Faktur = () => {
   const handleRemoveFaktur = async (id, year) => {
     try {
       const response = await fakturApi.removeFaktur(id, year);
-      console.log(response);
       if (!response.ok) {
         throw new Error("Failed to remove faktur pajak");
       }
 
       const updatedData = faktur.filter((item) => item.fak__ref !== id);
       setFaktur(updatedData);
+
+      const newLog = await fakturApi.getLogById(id);
+      // Option 1
+      // log.unshift(newLog.data[0]);
+      // setLog([...log]);
+
+      // Option 2
+      setLog([newLog.data[0], ...log]);
+
       navigate("/faktur");
       setSuccessfulMessage(
         `Faktur pajak ${id} tahun ${year} berhasil diremove`

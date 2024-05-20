@@ -22,6 +22,8 @@ const { RangePicker } = DatePicker;
 
 const Faktur = () => {
   const navigate = useNavigate();
+
+  // Loading state
   const [loading, setLoading] = useState(false);
   const [successfulMessage, setSuccessfulMessage] = useState(null);
 
@@ -69,7 +71,7 @@ const Faktur = () => {
     } catch (error) {
       console.error("Error receiving value: ", error);
     } finally {
-      setLoading(true);
+      setLoading(false);
     }
   };
 
@@ -83,10 +85,10 @@ const Faktur = () => {
 
       const updatedData = faktur.filter((item) => item.fak__ref !== id);
       setFaktur(updatedData);
+      navigate("/faktur");
       setSuccessfulMessage(
         `Faktur pajak ${id} tahun ${year} berhasil diremove`
       );
-      navigate("/faktur");
     } catch (error) {
       console.error("Failed to remove faktur pajak: ", error);
     }

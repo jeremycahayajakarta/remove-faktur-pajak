@@ -1,5 +1,5 @@
-import React from "react";
-import { Table, Button } from "antd";
+import { useState } from "react";
+import { Table, Button, Modal } from "antd";
 
 const TableFaktur = (props) => {
   const { faktur, onRemoveFaktur } = props;
@@ -49,24 +49,61 @@ const TableFaktur = (props) => {
       dataIndex: "jam_remove",
       key: "wakturemove",
       render: (text, record) => (
-        <Button
-          type="primary"
-          danger
-          onClick={() => onRemoveFaktur(record.fak__ref, record.bkj__ref)}
-        >
+        <Button type="primary" danger onClick={() => showModal(record)}>
           Remove
         </Button>
       ),
     },
   ];
 
+  // Modal
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [selectedRow, setSelectedRow] = useState(null);
+
+  const showModal = (row) => {
+    setIsModalVisible(true);
+    setSelectedRow(row);
+  };
+
+  const closeModal = () => {
+    setIsModalVisible(false);
+    setSelectedRow(null);
+  };
+
+  const handleRemoveFaktur = async () => {
+    await onRemoveFaktur(selectedRow.fak__ref, selectedRow.bkj__ref);
+    closeModal();
+  };
+
   return (
-    <Table
-      scroll={{ y: 300 }}
-      columns={columns}
-      style={{ marginTop: "10px" }}
-      dataSource={faktur}
-    />
+    <>
+      <Table
+        scroll={{ y: 300 }}
+        columns={columns}
+        style={{ marginTop: "10px" }}
+        dataSource={faktur}
+        onRow={(row) => {
+          return {
+            onClick: () => {
+              showModal(row);
+            },
+          };
+        }}
+      />
+      {selectedRow && (
+        <Modal
+          centered
+          title={`Hapus faktur pajak ${selectedRow.fak__ref} tahun ${selectedRow.bkj__ref}?`}
+          open={isModalVisible}
+          onOk={() => handleRemoveFaktur()}
+          onCancel={() => closeModal()}
+        >
+          <p>
+            Catatan: setelah Anda menghapus, Anda tidak dapat mengembalikannya!
+          </p>
+        </Modal>
+      )}
+    </>
   );
 };
 

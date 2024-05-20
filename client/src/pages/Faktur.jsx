@@ -76,9 +76,9 @@ const Faktur = () => {
     }
   };
 
-  const handleRemoveFaktur = async (id, year) => {
+  const handleRemoveFaktur = async (id, year, alasan) => {
     try {
-      const response = await fakturApi.removeFaktur(id, year);
+      const response = await fakturApi.removeFaktur(id, year, alasan);
       if (!response.ok) {
         throw new Error("Failed to remove faktur pajak");
       }

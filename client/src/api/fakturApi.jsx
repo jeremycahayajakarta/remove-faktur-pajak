@@ -50,7 +50,7 @@ const getFakturByDate = async (start_date, end_date) => {
   }
 };
 
-const removeFaktur = async (invoice_id, year) => {
+const removeFaktur = async (invoice_id, year, alasan) => {
   try {
     const response = await fetch(`${SERVER_BASE_URL}/remove`, {
       method: "POST",
@@ -61,6 +61,7 @@ const removeFaktur = async (invoice_id, year) => {
       body: JSON.stringify({
         id: invoice_id,
         year: year,
+        alasan: alasan,
       }),
     });
     const data = response;
@@ -95,19 +96,30 @@ const getLogById = async (id) => {
     console.error("Error fetching data: ", error);
     throw error;
   }
-}
+};
 
 const getLogByDate = async (start_date, end_date) => {
   try {
-    const response = await fetch(`${SERVER_BASE_URL}/log?start_date=${start_date}&end_date=${end_date}`, {
-      cache: "no-store",
-    });
+    const response = await fetch(
+      `${SERVER_BASE_URL}/log?start_date=${start_date}&end_date=${end_date}`,
+      {
+        cache: "no-store",
+      }
+    );
     const data = response.json();
     return data;
   } catch (error) {
     console.error("Error fetching data: ", error);
     throw error;
   }
-}
+};
 
-export default { getAllFaktur, getFakturById, getFakturByDate, removeFaktur, getAllLog, getLogById, getLogByDate };
+export default {
+  getAllFaktur,
+  getFakturById,
+  getFakturByDate,
+  removeFaktur,
+  getAllLog,
+  getLogById,
+  getLogByDate,
+};

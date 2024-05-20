@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Table, Button, Modal } from "antd";
+import { Table, Button, Modal, Select } from "antd";
 
 const TableFaktur = (props) => {
   const { faktur, onRemoveFaktur } = props;
@@ -56,6 +56,15 @@ const TableFaktur = (props) => {
     },
   ];
 
+  // Alasan
+  const [alasan, setAlasan] = useState("Pembetulan");
+  const options = [
+    { value: "Pembetulan", label: "Pembetulan" },
+    { value: "Tidak ditagih", label: "Tidak ditagih" },
+    { value: "Revisi", label: "Revisi" },
+    { value: "Debit note", label: "Debit note" },
+  ];
+
   // Modal
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [selectedRow, setSelectedRow] = useState(null);
@@ -71,8 +80,13 @@ const TableFaktur = (props) => {
   };
 
   const handleRemoveFaktur = async () => {
-    await onRemoveFaktur(selectedRow.fak__ref, selectedRow.bkj__ref);
+    await onRemoveFaktur(selectedRow.fak__ref, selectedRow.bkj__ref, alasan);
+    setAlasan("Pembetulan");
     closeModal();
+  };
+
+  const handleAlasanChange = (value) => {
+    setAlasan(value);
   };
 
   return (
@@ -94,6 +108,11 @@ const TableFaktur = (props) => {
           <p>
             Catatan: setelah Anda menghapus, Anda tidak dapat mengembalikannya!
           </p>
+          <Select
+            defaultValue={"Pembetulan"}
+            options={options}
+            onChange={handleAlasanChange}
+          />
         </Modal>
       )}
     </>

@@ -68,6 +68,7 @@ class Faktur:
             return make_response(jsonify({"message": "No data inside request body"}), 400)
         id = data['id']
         year = data['year']
+        alasan = data['alasan']
 
         conn = connect_db_server()
         cur = conn.cursor()
@@ -87,7 +88,7 @@ class Faktur:
         result = cur.rowcount
         if result == 1:
             msg = "Value {} is removed".format(id)
-            Faktur.insert_new_log(id, fp[0])
+            Faktur.insert_new_log(id, fp[0], alasan)
         else:
             msg = "There is no value"
         response, status = {"message": msg}, 200
@@ -98,12 +99,12 @@ class Faktur:
         return make_response(jsonify(response), status)
     
     @staticmethod
-    def insert_new_log(invoice_id, no_faktur):
+    def insert_new_log(invoice_id, no_faktur, alasan):
         conn = connect_db()
         cur = conn.cursor()
         
-        query = "INSERT INTO log_del_fp (user_id, no_inv, no_fps, alasan, tgl_remove, jam_remove) VALUES (1, %s, %s, 'Hapus faktur', CURDATE(), CURTIME())"
-        cur.execute(query, (invoice_id, no_faktur))
+        query = "INSERT INTO log_del_fp (user_id, no_inv, no_fps, alasan, tgl_remove, jam_remove) VALUES (1, %s, %s, %s, CURDATE(), CURTIME())"
+        cur.execute(query, (invoice_id, no_faktur, alasan))
         
         # result = cur.rowcount
         # if result == 1:

@@ -29,11 +29,4 @@ def remove_faktur():
 @faktur.route('/log', methods=['GET'])
 @cross_origin()
 def get_all_logs():
-    if request.args.get('id'):
-        id = request.args.get('id')
-        return Faktur.get_log_by_id(id)
-    elif request.args.get('start_date') and request.args.get('end_date'):
-        start_date = request.args.get('start_date')
-        end_date = request.args.get('end_date')
-        return Faktur.get_log_by_date(start_date, end_date)
     return Faktur.get_all_logs()

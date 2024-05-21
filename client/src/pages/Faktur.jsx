@@ -9,12 +9,10 @@ import {
   DatePicker,
   Card,
   Spin,
-  Space,
 } from "antd";
 import { useNavigate } from "react-router-dom";
 
 import dayjs from "dayjs";
-import { useLocation } from "react-router-dom";
 import fakturApi from "../api/fakturApi";
 import TableFaktur from "../components/TableFaktur";
 import TableLog from "../components/TableLog";
@@ -27,48 +25,38 @@ const Faktur = () => {
   const [loading, setLoading] = useState(false);
   const [successfulMessage, setSuccessfulMessage] = useState(null);
 
+  // Button
+  const [disabled, setDisabled] = useState(true);
+
   const [faktur, setFaktur] = useState([]);
   const [log, setLog] = useState([]);
   const [inputValue, setInputValue] = useState("");
   const [dates, setDates] = useState([]);
 
   useEffect(() => {
-    const fetchFaktur = async () => {
-      try {
-        setLoading(true);
-        const faktur = await fakturApi.getAllFaktur();
-        setFaktur(faktur.data);
-      } catch (error) {
-        console.error("Error fetching data: ", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     const fetchLog = async () => {
       try {
         const log = await fakturApi.getAllLog();
-        console.log(log.data);
         setLog(log.data);
       } catch (error) {
         console.error("Error fetching data: ", error);
       }
     };
 
-    fetchFaktur();
     fetchLog();
   }, []);
 
   const handleInputChange = (event) => {
     event.preventDefault();
     setInputValue(event.target.value);
+    setDisabled(event.target.value.trim() === "");
   };
 
   const handleSubmitID = async () => {
     try {
       setLoading(true);
-      const faktur = await fakturApi.getFakturById(inputValue);
-      setFaktur(faktur.data);
+      const response = await fakturApi.getFakturById(inputValue);
+      setFaktur(response.data);
     } catch (error) {
       console.error("Error receiving value: ", error);
     } finally {
@@ -86,13 +74,8 @@ const Faktur = () => {
       const updatedData = faktur.filter((item) => item.fak__ref !== id);
       setFaktur(updatedData);
 
-      const newLog = await fakturApi.getLogById(id);
-      // Option 1
-      // log.unshift(newLog.data[0]);
-      // setLog([...log]);
-
-      // Option 2
-      setLog([newLog.data[0], ...log]);
+      const updatedLog = await fakturApi.getAllLog();
+      setLog(updatedLog.data);
 
       navigate("/faktur");
       setSuccessfulMessage(
@@ -112,8 +95,8 @@ const Faktur = () => {
       setLoading(true);
       const start_date = dayjs(dates[0]).format("YYYY-MM-DD");
       const end_date = dayjs(dates[1]).format("YYYY-MM-DD");
-      const faktur = await fakturApi.getFakturByDate(start_date, end_date);
-      setFaktur(faktur.data);
+      const response = await fakturApi.getFakturByDate(start_date, end_date);
+      setFaktur(response.data);
     } catch (error) {
       console.error("Error receiving value: ", error);
     } finally {
@@ -138,7 +121,11 @@ const Faktur = () => {
               />
             </Col>
             <Col span={6}>
-              <Button type="primary" onClick={handleSubmitID}>
+              <Button
+                type="primary"
+                onClick={handleSubmitID}
+                disabled={disabled}
+              >
                 Search
               </Button>
             </Col>

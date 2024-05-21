@@ -1,4 +1,4 @@
-const SERVER_BASE_URL = "http://127.0.0.1:5000";
+const SERVER_BASE_URL = "http://192.168.31.118:5000";
 
 const getAllFaktur = async () => {
   try {
@@ -85,34 +85,18 @@ const getAllLog = async () => {
   }
 };
 
-const getLogById = async (id) => {
-  try {
-    const response = await fetch(`${SERVER_BASE_URL}/log?id=${id}`, {
-      cache: "no-store",
-    });
-    const data = response.json();
-    return data;
-  } catch (error) {
-    console.error("Error fetching data: ", error);
-    throw error;
-  }
-};
-
-const getLogByDate = async (start_date, end_date) => {
-  try {
-    const response = await fetch(
-      `${SERVER_BASE_URL}/log?start_date=${start_date}&end_date=${end_date}`,
-      {
-        cache: "no-store",
-      }
-    );
-    const data = response.json();
-    return data;
-  } catch (error) {
-    console.error("Error fetching data: ", error);
-    throw error;
-  }
-};
+// const getLogById = async (id) => {
+//   try {
+//     const response = await fetch(`${SERVER_BASE_URL}/log?id=${id}`, {
+//       cache: "no-store",
+//     });
+//     const data = response.json();
+//     return data;
+//   } catch (error) {
+//     console.error("Error fetching data: ", error);
+//     throw error;
+//   }
+// };
 
 export default {
   getAllFaktur,
@@ -120,6 +104,5 @@ export default {
   getFakturByDate,
   removeFaktur,
   getAllLog,
-  getLogById,
-  getLogByDate,
+  // getLogById
 };

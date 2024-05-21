@@ -35,6 +35,11 @@ const TableFaktur = (props) => {
       key: "kla__ref",
     },
     {
+      title: "Customer Name",
+      dataIndex: "naam____",
+      key: "naam____",
+    },
+    {
       title: "Faktur Pajak",
       dataIndex: "cde___ap",
       key: "cde___ap",

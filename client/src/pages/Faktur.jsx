@@ -37,7 +37,7 @@ const Faktur = () => {
     const fetchLog = async () => {
       try {
         const log = await fakturApi.getAllLog();
-        setLog(log.data);
+        setLog(log.log);
       } catch (error) {
         console.error("Error fetching data: ", error);
       }
@@ -56,7 +56,7 @@ const Faktur = () => {
     try {
       setLoading(true);
       const response = await fakturApi.getFakturById(inputValue);
-      setFaktur(response.data);
+      setFaktur(response.faktur);
     } catch (error) {
       console.error("Error receiving value: ", error);
     } finally {
@@ -71,11 +71,11 @@ const Faktur = () => {
         throw new Error("Failed to remove faktur pajak");
       }
 
-      const updatedData = faktur.filter((item) => item.fak__ref !== id);
+      const updatedData = faktur.filter((item) => item.invoice_id !== id);
       setFaktur(updatedData);
 
       const updatedLog = await fakturApi.getAllLog();
-      setLog(updatedLog.data);
+      setLog(updatedLog.log);
 
       navigate("/faktur");
       setSuccessfulMessage(
@@ -86,7 +86,7 @@ const Faktur = () => {
     }
   };
 
-  const onChangeDate = (dates, dateStrings) => {
+  const onChangeDate = (dates) => {
     setDates(dates);
   };
 
@@ -96,7 +96,7 @@ const Faktur = () => {
       const start_date = dayjs(dates[0]).format("YYYY-MM-DD");
       const end_date = dayjs(dates[1]).format("YYYY-MM-DD");
       const response = await fakturApi.getFakturByDate(start_date, end_date);
-      setFaktur(response.data);
+      setFaktur(response.faktur);
     } catch (error) {
       console.error("Error receiving value: ", error);
     } finally {

@@ -11,12 +11,12 @@ const TableLog = (props) => {
     {
       title: "Petugas",
       dataIndex: "user_id",
-      key: "petugas",
+      key: "user_id",
     },
     {
       title: "Faktur Pajak",
       dataIndex: "no_fps",
-      key: "fakturpajak",
+      key: "no_fps",
     },
     {
       title: "Alasan",
@@ -26,12 +26,12 @@ const TableLog = (props) => {
     {
       title: "Tanggal Remove",
       dataIndex: "tgl_remove",
-      key: "tanggalremove",
+      key: "tgl_remove",
     },
     {
       title: "Waktu Remove",
       dataIndex: "jam_remove",
-      key: "wakturemove",
+      key: "jam_remove",
     },
   ];
   return (

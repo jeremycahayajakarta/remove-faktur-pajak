@@ -15,7 +15,7 @@ const getAllFaktur = async () => {
 
 const getFakturById = async (id) => {
   try {
-    const response = await fetch(`${SERVER_BASE_URL}/faktur?id=${id}`, {
+    const response = await fetch(`${SERVER_BASE_URL}/get_faktur_by_id?id=${id}`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -33,7 +33,7 @@ const getFakturById = async (id) => {
 const getFakturByDate = async (start_date, end_date) => {
   try {
     const response = await fetch(
-      `${SERVER_BASE_URL}/faktur?start_date=${start_date}&end_date=${end_date}`,
+      `${SERVER_BASE_URL}/get_faktur_by_date?start_date=${start_date}&end_date=${end_date}`,
       {
         method: "GET",
         headers: {
@@ -52,7 +52,7 @@ const getFakturByDate = async (start_date, end_date) => {
 
 const removeFaktur = async (invoice_id, year, alasan) => {
   try {
-    const response = await fetch(`${SERVER_BASE_URL}/remove`, {
+    const response = await fetch(`${SERVER_BASE_URL}/remove_faktur`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -74,7 +74,7 @@ const removeFaktur = async (invoice_id, year, alasan) => {
 
 const getAllLog = async () => {
   try {
-    const response = await fetch(`${SERVER_BASE_URL}/log`, {
+    const response = await fetch(`${SERVER_BASE_URL}/get_all_logs`, {
       cache: "no-store",
     });
     const data = response.json();

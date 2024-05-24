@@ -6,53 +6,54 @@ const TableFaktur = (props) => {
   const columns = [
     {
       title: "Site",
-      dataIndex: "dossier_",
-      key: "dossier_",
+      dataIndex: "site",
+      key: "site",
     },
     {
       title: "Jurnal ID",
-      dataIndex: "dgbk_ref",
-      key: "dgbk_ref",
+      dataIndex: "jurnal_id",
+      key: "jurnal_id",
     },
     {
       title: "Invoice",
-      dataIndex: "fak__ref",
-      key: "fak__ref",
+      dataIndex: "invoice_id",
+      key: "invoice_id",
     },
     {
       title: "Year",
-      dataIndex: "bkj__ref",
-      key: "bkj__ref",
+      dataIndex: "year",
+      key: "year",
     },
     {
       title: "Periode",
-      dataIndex: "peri_ref",
-      key: "peri_ref",
+      dataIndex: "periode",
+      key: "periode",
     },
     {
       title: "Customer ID",
-      dataIndex: "kla__ref",
-      key: "kla__ref",
+      dataIndex: "cust_id",
+      key: "cust_id",
     },
     {
       title: "Customer Name",
-      dataIndex: "naam____",
-      key: "naam____",
+      dataIndex: "cust_name",
+      key: "cust_name",
     },
     {
       title: "Faktur Pajak",
-      dataIndex: "cde___ap",
-      key: "cde___ap",
+      dataIndex: "no_faktur",
+      key: "no_faktur",
     },
     {
       title: "User",
-      dataIndex: "kla__ref",
-      key: "kla__ref",
+      dataIndex: "user_id",
+      key: "user_id",
+      render: (text, record) => (text ? text : <>No User Data</>),
     },
     {
       title: "Action",
-      dataIndex: "jam_remove",
-      key: "wakturemove",
+      // dataIndex: "jam_remove",
+      // key: "jam_remove",
       render: (text, record) => (
         <Button type="primary" danger onClick={() => showModal(record)}>
           Remove
@@ -85,7 +86,7 @@ const TableFaktur = (props) => {
   };
 
   const handleRemoveFaktur = async () => {
-    await onRemoveFaktur(selectedRow.fak__ref, selectedRow.bkj__ref, alasan);
+    await onRemoveFaktur(selectedRow.invoice_id, selectedRow.year, alasan);
     setAlasan("Pembetulan");
     closeModal();
   };
@@ -105,7 +106,7 @@ const TableFaktur = (props) => {
       {selectedRow && (
         <Modal
           centered
-          title={`Hapus faktur pajak ${selectedRow.fak__ref} tahun ${selectedRow.bkj__ref}?`}
+          title={`Hapus faktur pajak ${selectedRow.invoice_id} tahun ${selectedRow.year}?`}
           open={isModalVisible}
           onOk={() => handleRemoveFaktur()}
           onCancel={() => closeModal()}

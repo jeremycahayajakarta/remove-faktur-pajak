@@ -33,7 +33,10 @@ class Faktur:
         cur = conn.cursor(as_dict=True)
 
         query = """
-        SELECT f.dossier_, f.dgbk_ref, f.fak__ref, f.bkj__ref, f.peri_ref, f.kla__ref, f.cde___ap , c.naam____
+        SELECT f.dossier_ AS site, f.dgbk_ref AS jurnal_id, 
+        f.fak__ref AS invoice_id, f.bkj__ref AS year, 
+        f.peri_ref AS periode, f.kla__ref AS cust_id, 
+        f.cde___ap AS no_faktur, c.naam____ AS cust_name
         FROM hafgfk__ f
         INNER JOIN klabas__ c ON f.kla__ref = c.kla__ref
         WHERE f.fak__ref=%s AND f.cde___ap != '';
@@ -42,22 +45,25 @@ class Faktur:
         result = cur.fetchone()
         cur.close()
         if result is None:
-            response = {"message": "No data with ID {}".format(id)}
+            response = {"status": 0, "message": "No data with ID {}".format(id)}
         else:
-            response = {"data": [result], "message": "Data retrieved"}
+            response = {"status": 1, "faktur": [result]}
         cur.close()
         return make_response(jsonify(response), 200)
 
     @staticmethod
     def get_faktur_by_date(start_date, end_date):
         if start_date is None or end_date is None:
-            return make_response(jsonify({"message": "No date"}), 400)
+            return make_response(jsonify({"status": 0, "message": "No date"}), 400)
         
         conn = connect_db_server()
         cur = conn.cursor(as_dict=True)
 
         query = """
-        SELECT f.dossier_, f.dgbk_ref, f.fak__ref, f.bkj__ref, f.peri_ref,f. kla__ref, f.cde___ap, c.naam____
+        SELECT f.dossier_ AS site, f.dgbk_ref AS jurnal_id, 
+        f.fak__ref AS invoice_id, f.bkj__ref AS year, 
+        f.peri_ref AS periode, f.kla__ref AS cust_id, 
+        f.cde___ap AS no_faktur, c.naam____ AS cust_name
         FROM hafgfk__ f
         INNER JOIN klabas__ c ON f.kla__ref = c.kla__ref
         WHERE f.dok__dat BETWEEN %s AND %s AND f.cde___ap != '';
@@ -65,12 +71,11 @@ class Faktur:
         cur.execute(query, (start_date, end_date))
         result = cur.fetchall()
         cur.close()
-        if result is None:
-            response = {"message": "No data between {} and {}".format(
-                start_date, end_date)}
-        else:
-            response = {"data": result,
-                        "message": "Data retrieved"}
+        # if result is None:
+        #     response = {"status": 0, "message": "No data between {} and {}".format(
+        #         start_date, end_date)}
+        # else:
+        response = {"status": 1, "faktur": result}
         cur.close()
         return make_response(jsonify(response), 200)
 
@@ -79,7 +84,7 @@ class Faktur:
         # Req Body
         data = request.get_json()
         if data is None:
-            return make_response(jsonify({"message": "No data inside request body"}), 400)
+            return make_response(jsonify({"status": 0, "message": "No data inside request body"}), 400)
         id = data['id']
         year = data['year']
         alasan = data['alasan']
@@ -101,16 +106,15 @@ class Faktur:
         # msg = cur.messages
         result = cur.rowcount
         if result == 1:
-            msg = "Value {} is removed".format(id)
             Faktur.insert_new_log(id, fp[0], alasan)
+            response = {"status": 1, "message": "Value {} is removed".format(id)}
         else:
-            msg = "There is no value"
-        response, status = {"message": msg}, 200
+            response = {"status": 0, "message": "There is no value"}
         
         cur.close()
         conn.commit()
 
-        return make_response(jsonify(response), status)
+        return make_response(jsonify(response), 200)
     
     @staticmethod
     def insert_new_log(invoice_id, no_faktur, alasan):
@@ -125,7 +129,7 @@ class Faktur:
             msg = "Log remove faktur {} added".format(invoice_id)
         else:
             msg = "There is no value"
-        response, status = {"message": msg}, 200
+        response, status = {"status": 1, "message": msg}, 200
         cur.close()
         conn.commit()
         return make_response(jsonify(response), status)
@@ -135,14 +139,18 @@ class Faktur:
         conn = connect_db()
         cur = conn.cursor()
 
-        query = "SELECT user_id, no_inv, no_fps, alasan, tgl_remove, jam_remove FROM log_del_fp WHERE tgl_remove = CURDATE() ORDER BY tgl_remove DESC, jam_remove DESC"
+        query = """
+        SELECT user_id, no_inv, no_fps, alasan, tgl_remove, jam_remove 
+        FROM log_del_fp 
+        WHERE tgl_remove = CURDATE() 
+        ORDER BY tgl_remove DESC, jam_remove DESC
+        """
         cur.execute(query)
         result = cur.fetchall()
         if result is None:
-            response, status = {"message": "Problem occured"}, 400
+            response, status = {"status": 0, "message": "Problem occured"}, 400
         else:
-            response, status = {"data": result,
-                                "message": "Data retrieved"}, 200
+            response, status = {"status": 1, "log": result}, 200
         
         for row in result:
             row['tgl_remove'] = row['tgl_remove'].strftime("%d %b %Y")

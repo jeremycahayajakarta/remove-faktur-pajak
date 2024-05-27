@@ -46,14 +46,12 @@ const TableFaktur = (props) => {
     },
     {
       title: "User",
-      dataIndex: "user_id",
-      key: "user_id",
+      dataIndex: "user_name",
+      key: "user_name",
       render: (text, record) => (text ? text : <>No User Data</>),
     },
     {
       title: "Action",
-      // dataIndex: "jam_remove",
-      // key: "jam_remove",
       render: (text, record) => (
         <Button type="primary" danger onClick={() => showModal(record)}>
           Remove

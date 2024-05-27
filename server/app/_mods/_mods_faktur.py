@@ -36,7 +36,8 @@ class Faktur:
         SELECT f.dossier_ AS site, f.dgbk_ref AS jurnal_id, 
         f.fak__ref AS invoice_id, f.bkj__ref AS year, 
         f.peri_ref AS periode, f.kla__ref AS cust_id, 
-        f.cde___ap AS no_faktur, c.naam____ AS cust_name
+        f.cde___ap AS no_faktur, f.user____ AS user_name, 
+        c.naam____ AS cust_name
         FROM hafgfk__ f
         INNER JOIN klabas__ c ON f.kla__ref = c.kla__ref
         WHERE f.fak__ref=%s AND f.cde___ap != '';
@@ -63,7 +64,8 @@ class Faktur:
         SELECT f.dossier_ AS site, f.dgbk_ref AS jurnal_id, 
         f.fak__ref AS invoice_id, f.bkj__ref AS year, 
         f.peri_ref AS periode, f.kla__ref AS cust_id, 
-        f.cde___ap AS no_faktur, c.naam____ AS cust_name
+        f.cde___ap AS no_faktur, f.user____ AS user_name,
+        c.naam____ AS cust_name
         FROM hafgfk__ f
         INNER JOIN klabas__ c ON f.kla__ref = c.kla__ref
         WHERE f.dok__dat BETWEEN %s AND %s AND f.cde___ap != '';

@@ -1,4 +1,4 @@
-from flask import jsonify, make_response, request, session
+from flask import jsonify, make_response, request
 from app.db_conn import connect_db, connect_db_server
 
 class Faktur:

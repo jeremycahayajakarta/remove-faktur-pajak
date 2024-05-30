@@ -74,10 +74,8 @@ const getAllLog = async () => {
 };
 
 export default {
-  getAllFaktur,
   getFakturById,
   getFakturByDate,
   removeFaktur,
   getAllLog,
-  // getLogById
 };

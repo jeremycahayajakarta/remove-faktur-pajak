@@ -1,29 +1,7 @@
-from flask import jsonify, make_response, request
+from flask import jsonify, make_response, request, session
 from app.db_conn import connect_db, connect_db_server
 
-
 class Faktur:
-    @staticmethod
-    def get_all_faktur():
-        conn = connect_db_server()
-        cur = conn.cursor(as_dict=True)
-
-        query = """
-        SELECT f.dossier_, f.dgbk_ref, f.fak__ref, f.bkj__ref, f.peri_ref, f.kla__ref, f.cde___ap , c.naam____
-        FROM hafgfk__ f
-        INNER JOIN klabas__ c ON f.kla__ref = c.kla__ref
-        """
-        # query = "SELECT dossier_, dgbk_ref, fak__ref, bkj__ref, peri_ref, kla__ref, cde___ap FROM hafgfk__ WHERE cde___ap != '' LIMIT 10"
-        cur.execute(query)
-        result = cur.fetchall()
-        if result is None:
-            response, status = {"message": "Problem occured"}, 400
-        else:
-            response, status = {"data": result,
-                                "message": "Data retrieved"}, 200
-        cur.close()
-        return make_response(jsonify(response), status)
-
     @staticmethod
     def get_faktur_by_id(id):
         if id is None:
@@ -31,28 +9,27 @@ class Faktur:
 
         conn = connect_db_server()
         cur = conn.cursor(as_dict=True)
-
+        
         query = """
         SELECT f.dossier_ AS site, f.dgbk_ref AS jurnal_id, 
         f.fak__ref AS invoice_id, f.bkj__ref AS year, 
         f.peri_ref AS periode, f.kla__ref AS cust_id, 
-        f.cde___ap AS no_faktur, f.user____ AS user_name, 
+        f.cde___ap AS no_faktur, f.user____ AS user_name,  
         c.naam____ AS cust_name
         FROM hafgfk__ f
         INNER JOIN klabas__ c ON f.kla__ref = c.kla__ref
         WHERE f.fak__ref=%s AND f.cde___ap != '';
         """
         cur.execute(query, (id))
-        result = cur.fetchone()
+        result = cur.fetchall()
         cur.close()
-        if result is None:
-            response = {"status": 0, "message": "No data with ID {}".format(id)}
+        
+        if len(result) == 0:
+            response = {"status": 0, "message": "Invoice ID {} could not be found.".format(id)}
         else:
-            response = {"status": 1, "faktur": [result]}
-        cur.close()
-        print(response)
+            response = {"status": 1, "faktur": result}
         return make_response(jsonify(response), 200)
-
+    
     @staticmethod
     def get_faktur_by_date(start_date, end_date):
         if start_date is None or end_date is None:
@@ -65,7 +42,7 @@ class Faktur:
         SELECT f.dossier_ AS site, f.dgbk_ref AS jurnal_id, 
         f.fak__ref AS invoice_id, f.bkj__ref AS year, 
         f.peri_ref AS periode, f.kla__ref AS cust_id, 
-        f.cde___ap AS no_faktur, f.user____ AS user_name,
+        f.cde___ap AS no_faktur, f.user____ AS user_name,  
         c.naam____ AS cust_name
         FROM hafgfk__ f
         INNER JOIN klabas__ c ON f.kla__ref = c.kla__ref
@@ -74,14 +51,14 @@ class Faktur:
         cur.execute(query, (start_date, end_date))
         result = cur.fetchall()
         cur.close()
-        # if result is None:
-        #     response = {"status": 0, "message": "No data between {} and {}".format(
-        #         start_date, end_date)}
-        # else:
-        response = {"status": 1, "faktur": result}
-        cur.close()
+        
+        if len(result) == 0:
+            response = {"status": 0, "message": "No invoice data between {} and {}.".format(
+                start_date, end_date)}
+        else:
+            response = {"status": 1, "faktur": result}
         return make_response(jsonify(response), 200)
-
+    
     @staticmethod
     def remove_faktur():
         # Req Body
@@ -124,7 +101,9 @@ class Faktur:
         conn = connect_db()
         cur = conn.cursor()
         
-        query = "INSERT INTO log_del_fp (user_name, no_inv, no_fps, alasan, tgl_remove, jam_remove) VALUES (1, %s, %s, %s, CURDATE(), CURTIME())"
+        # user_name = session['username']
+
+        query = "INSERT INTO log_del_fp (user_name, no_inv, no_fps, alasan, tgl_remove, jam_remove) VALUES ('1', %s, %s, %s, CURDATE(), CURTIME())"
         cur.execute(query, (invoice_id, no_faktur, alasan))
         
         result = cur.rowcount
@@ -133,10 +112,11 @@ class Faktur:
         else:
             msg = "There is no value"
         response, status = {"status": 1, "message": msg}, 200
+        
         cur.close()
         conn.commit()
         return make_response(jsonify(response), status)
-
+    
     @staticmethod
     def get_all_logs():
         conn = connect_db()
@@ -150,6 +130,7 @@ class Faktur:
         """
         cur.execute(query)
         result = cur.fetchall()
+        
         if result is None:
             response, status = {"status": 0, "message": "Problem occured"}, 400
         else:
@@ -162,25 +143,3 @@ class Faktur:
             
         cur.close()
         return make_response(jsonify(response), status)
-    
-    # @staticmethod
-    # def get_log_by_id(id):
-    #     if id is None:
-    #         return make_response(jsonify({"message": "No data inside request body"}), 400)
-
-    #     conn = connect_db()
-    #     cur = conn.cursor()
-
-    #     query = "SELECT user_id, no_inv, no_fps, alasan, tgl_remove, jam_remove FROM log_del_fp WHERE no_inv=%s"
-    #     cur.execute(query, (id))
-    #     result = cur.fetchone()
-    #     cur.close()
-    #     if result is None:
-    #         response = {"message": "No data with ID {}".format(id)}
-    #     else:
-    #         response = {"data": [result], "message": "Data retrieved"}
-    #         result['tgl_remove'] = result['tgl_remove'].strftime("%d %b %Y")
-    #         result['jam_remove'] = str(result['jam_remove'])
-        
-    #     cur.close()
-    #     return make_response(jsonify(response), 200)

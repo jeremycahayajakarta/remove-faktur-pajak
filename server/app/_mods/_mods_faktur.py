@@ -50,6 +50,7 @@ class Faktur:
         else:
             response = {"status": 1, "faktur": [result]}
         cur.close()
+        print(response)
         return make_response(jsonify(response), 200)
 
     @staticmethod
@@ -123,7 +124,7 @@ class Faktur:
         conn = connect_db()
         cur = conn.cursor()
         
-        query = "INSERT INTO log_del_fp (user_id, no_inv, no_fps, alasan, tgl_remove, jam_remove) VALUES (1, %s, %s, %s, CURDATE(), CURTIME())"
+        query = "INSERT INTO log_del_fp (user_name, no_inv, no_fps, alasan, tgl_remove, jam_remove) VALUES (1, %s, %s, %s, CURDATE(), CURTIME())"
         cur.execute(query, (invoice_id, no_faktur, alasan))
         
         result = cur.rowcount
@@ -142,7 +143,7 @@ class Faktur:
         cur = conn.cursor()
 
         query = """
-        SELECT user_id, no_inv, no_fps, alasan, tgl_remove, jam_remove 
+        SELECT user_name, no_inv, no_fps, alasan, tgl_remove, jam_remove 
         FROM log_del_fp 
         WHERE tgl_remove = CURDATE() 
         ORDER BY tgl_remove DESC, jam_remove DESC
@@ -152,12 +153,13 @@ class Faktur:
         if result is None:
             response, status = {"status": 0, "message": "Problem occured"}, 400
         else:
-            response, status = {"status": 1, "log": result}, 200
-        
-        for row in result:
-            row['tgl_remove'] = row['tgl_remove'].strftime("%d %b %Y")
-            row['jam_remove'] = str(row['jam_remove'])
-
+            new_response = []
+            for row in result:
+                tgl_remove_edited = row[4].strftime("%d %b %Y")
+                row_dict = dict([('user_name', row[0]), ('no_inv', row[1]), ('no_fps', row[2]), ('alasan', row[3]), ('tgl_remove', tgl_remove_edited), ('jam_remove', str(row[5]))])
+                new_response.append(row_dict)
+            response, status = {"status": 1, "log": new_response}, 200
+            
         cur.close()
         return make_response(jsonify(response), status)
     

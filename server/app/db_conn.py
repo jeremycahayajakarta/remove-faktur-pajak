@@ -8,7 +8,9 @@ def connect_db():
         password='cahaya',
         database='faktur',
         charset='utf8mb4',
-        cursorclass=pymysql.cursors.DictCursor)
+        # cursorclass=pymysql.cursors.DictCursor
+    )
+    
     return conn
 
 # db test

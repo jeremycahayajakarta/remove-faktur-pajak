@@ -3,6 +3,6 @@ from flask_cors import CORS
 from app._route._route_faktur import faktur
 
 app = Flask(__name__)
-cors = CORS(app, origins=['http://192.168.31.118:3000', 'http://192.168.31.118:8000'])
+cors = CORS(app)
 
 app.register_blueprint(faktur)

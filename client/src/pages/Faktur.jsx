@@ -27,6 +27,7 @@ const Faktur = () => {
 
   // Button
   const [disabled, setDisabled] = useState(true);
+  const [disabledExport, setDisabledExport] = useState(true);
 
   const [faktur, setFaktur] = useState([]);
   const [log, setLog] = useState([]);
@@ -86,8 +87,14 @@ const Faktur = () => {
     }
   };
 
-  const onChangeDate = (dates) => {
-    setDates(dates);
+  const onChangeDate = (date) => {
+    setDates(date);
+    if (date != []) {
+      setDisabledExport(false);
+    } else {
+      setDisabledExport(true);
+    }
+    console.log(date);
   };
 
   const handleSubmitDate = async () => {
@@ -101,6 +108,19 @@ const Faktur = () => {
       console.error("Error receiving value: ", error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleExportCSV = async () => {
+    try {
+      const start_date = dayjs(dates[0]).format("YYYY-MM-DD");
+      const end_date = dayjs(dates[1]).format("YYYY-MM-DD");
+      const response_export = await fakturApi.exportCSV(start_date, end_date);
+      if (!response_export.ok) {
+        throw new Error("Failed to export faktur pajak");
+      }
+    } catch (error) {
+      console.error("Error receiving value: ", error);
     }
   };
 
@@ -142,6 +162,15 @@ const Faktur = () => {
             <Col span={6}>
               <Button type="primary" onClick={handleSubmitDate}>
                 Search
+              </Button>
+            </Col>
+          </Flex>
+        </Row>
+        <Row>
+          <Flex gap={10}>
+            <Col span={6}>
+              <Button onClick={handleExportCSV} disabled={disabledExport}>
+                Export
               </Button>
             </Col>
           </Flex>

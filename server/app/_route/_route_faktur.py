@@ -36,3 +36,10 @@ def remove_faktur():
 @cross_origin()
 def get_all_logs():
     return Faktur.get_all_logs()
+
+@faktur.route('/export_faktur', methods=['GET', 'POST'])
+@cross_origin()
+def export_faktur():
+    start_date = request.args.get('start_date')
+    end_date = request.args.get('end_date')
+    return Faktur.export_csv(start_date, end_date)

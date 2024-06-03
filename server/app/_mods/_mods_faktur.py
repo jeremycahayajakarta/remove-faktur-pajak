@@ -1,5 +1,10 @@
-from flask import jsonify, make_response, request
+from flask import jsonify, make_response, Response, request, send_file, send_from_directory
 from app.db_conn import connect_db, connect_db_server
+import pandas as pd
+import os
+from io import BytesIO
+
+EXPORT_CSV_PATH = os.path.join(os.getcwd(), 'app\\public\\csv')
 
 class Faktur:
     @staticmethod
@@ -143,3 +148,55 @@ class Faktur:
             
         cur.close()
         return make_response(jsonify(response), status)
+    
+    @staticmethod
+    def export_csv(start_date, end_date):
+        conn = connect_db_server()
+        cur = conn.cursor(as_dict=True)
+        
+        query = """
+        SELECT f.dossier_ AS site, f.dgbk_ref AS jurnal_id, 
+        f.fak__ref AS invoice_id, f.bkj__ref AS year, 
+        f.peri_ref AS periode, f.kla__ref AS cust_id, 
+        f.cde___ap AS no_faktur, f.user____ AS user_name,  
+        c.naam____ AS cust_name
+        FROM hafgfk__ f
+        INNER JOIN klabas__ c ON f.kla__ref = c.kla__ref
+        WHERE f.dok__dat BETWEEN %s AND %s AND f.cde___ap != '';
+        """
+        
+        cur.execute(query, (start_date, end_date))
+        result = cur.fetchall()
+        cur.close()
+        
+        
+        if len(result) > 0:
+            json_data = {"faktur": result}
+            # Making dataframe from response json
+            df = pd.DataFrame(json_data["faktur"])
+            # Export to CSV
+            # response_stream = BytesIO(df.to_csv(index=False).encode())
+            # path_file = os.path.join(os.getcwd(), "app\\public\\csv")
+            # print(path_file)
+            file_name = os.path.join(EXPORT_CSV_PATH, 'faktur_data_{}_{}.csv'.format(start_date, end_date))
+            df.to_csv(file_name, index=False)
+            
+            return send_from_directory(
+                EXPORT_CSV_PATH, path='faktur_data_{}_{}.csv'.format(start_date, end_date), as_attachment=True
+            )
+            return send_file(
+                response_stream,
+                # path_or_file=path_file,
+                mimetype="text/csv",
+                download_name="export.csv",
+                as_attachment=True
+            )
+            
+            response = Response()
+            # response = {"status": 1, "message": "CSV file is exported!"}
+            response.headers["Content-Disposition"] = "attachment; faktur_data_{}_{}.csv".format(start_date, end_date)
+            response.headers["Content-type"] = "text/csv"
+        else: 
+            response = {"status": 0, "message": "CSV file couldn't be exported, no invoice data between {} and {}.".format(start_date, end_date)}
+        
+        return response

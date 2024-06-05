@@ -3,8 +3,11 @@ from app.db_conn import connect_db, connect_db_server
 import pandas as pd
 import os
 from io import BytesIO
+import xlsxwriter
+from werkzeug.datastructures import Headers
 
 EXPORT_CSV_PATH = os.path.join(os.getcwd(), 'app\\public\\csv')
+EXPORT_EXCEL_PATH = os.path.join(os.getcwd(), 'app\\public\\excel')
 
 class Faktur:
     @staticmethod
@@ -171,32 +174,130 @@ class Faktur:
         
         
         if len(result) > 0:
+            output = BytesIO()
             json_data = {"faktur": result}
             # Making dataframe from response json
             df = pd.DataFrame(json_data["faktur"])
+            
             # Export to CSV
-            # response_stream = BytesIO(df.to_csv(index=False).encode())
-            # path_file = os.path.join(os.getcwd(), "app\\public\\csv")
-            # print(path_file)
-            file_name = os.path.join(EXPORT_CSV_PATH, 'faktur_data_{}_{}.csv'.format(start_date, end_date))
+            file_name = os.path.join(EXPORT_CSV_PATH, 'DATA_FAKTUR_{}_{}.csv'.format(start_date, end_date))
             df.to_csv(file_name, index=False)
             
-            return send_from_directory(
-                EXPORT_CSV_PATH, path='faktur_data_{}_{}.csv'.format(start_date, end_date), as_attachment=True
-            )
-            return send_file(
-                response_stream,
-                # path_or_file=path_file,
-                mimetype="text/csv",
-                download_name="export.csv",
-                as_attachment=True
-            )
+            with open(file_name, 'rb') as f:
+                output.write(f.read())
+                
+            output.seek(0)
+            os.remove(file_name)
             
-            response = Response()
-            # response = {"status": 1, "message": "CSV file is exported!"}
-            response.headers["Content-Disposition"] = "attachment; faktur_data_{}_{}.csv".format(start_date, end_date)
-            response.headers["Content-type"] = "text/csv"
+            return send_file(
+                output, 
+                mimetype='text/csv', 
+                as_attachment=True, 
+                download_name='DATA_FAKTUR_{}_{}.csv'.format(start_date, end_date)
+            )
+            return send_from_directory(
+                EXPORT_CSV_PATH, path='DATA_FAKTUR_{}_{}.csv'.format(start_date, end_date), as_attachment=True
+            )
         else: 
             response = {"status": 0, "message": "CSV file couldn't be exported, no invoice data between {} and {}.".format(start_date, end_date)}
         
         return response
+    
+    @staticmethod
+    def export_excel(start_date, end_date):
+        # Querying the data
+        conn = connect_db_server()
+        cur = conn.cursor(as_dict=True)
+        
+        query = """
+        SELECT f.dossier_ AS site, f.dgbk_ref AS jurnal_id, 
+        f.fak__ref AS invoice_id, f.bkj__ref AS year, 
+        f.peri_ref AS periode, f.kla__ref AS cust_id, 
+        f.cde___ap AS no_faktur, f.user____ AS user_name,  
+        c.naam____ AS cust_name
+        FROM hafgfk__ f
+        INNER JOIN klabas__ c ON f.kla__ref = c.kla__ref
+        WHERE f.dok__dat BETWEEN %s AND %s AND f.cde___ap != '';
+        """
+        
+        cur.execute(query, (start_date, end_date))
+        result = cur.fetchall()
+        cur.close()
+        
+        if len(result) > 0:
+            output = BytesIO()
+            response = Response()
+            # Making a workbook for Excel
+            workbook = xlsxwriter.Workbook(output, {'in_memory': True})
+            worksheet = workbook.add_worksheet()
+            
+            # Make columns
+            worksheet.set_column("A:A", 10) # No
+            worksheet.set_column("B:B", 10) # Site
+            worksheet.set_column("C:C", 10) # Jurnal ID
+            worksheet.set_column("D:D", 10) # Invoice ID
+            worksheet.set_column("E:E", 10) # Year
+            worksheet.set_column("F:F", 10) # Periode
+            worksheet.set_column("G:G", 20) # Customer ID
+            worksheet.set_column("H:H", 50) # Customer Name
+            worksheet.set_column("I:I", 20) # Faktur Pajak
+            worksheet.set_column("J:J", 10) # User
+            
+            # Format
+            column_header_format = workbook.add_format({
+                'bold': True, 
+                'align': 'center', 
+                'bg_color': '#CCCCCC',
+                'border': True
+            })
+            bold_format = workbook.add_format({'bold': True})
+            row_format = workbook.add_format({'align': 'center', 'border': True})
+            
+            row_num = 4
+            num = 1
+            alphabet = 65 # A = 65, Z = 90
+            
+            # Header
+            worksheet.merge_range("A1:J1", "DATA FAKTUR PAJAK {} S.D {}".format(start_date, end_date), bold_format)
+            
+            # Column Header
+            columns = ["NO", "SITE", 
+                    "JURNAL ID", "INVOICE ID", 
+                    "YEAR", "PERIODE", 
+                    "CUSTOMER ID", "CUSTOMER NAME", 
+                    "NO. FAKTUR", "USER"]
+            
+            for col in columns:
+                worksheet.write("{}{}".format(chr(alphabet), 3), col, column_header_format)
+                alphabet += 1
+            
+            # Build row data
+            for row in result:
+                worksheet.write('A{}'.format(str(row_num)), str(num), row_format)
+                worksheet.write('B{}'.format(str(row_num)), row['site'], row_format)
+                worksheet.write('C{}'.format(str(row_num)), row['jurnal_id'], row_format)
+                worksheet.write('D{}'.format(str(row_num)), row['invoice_id'], row_format)
+                worksheet.write('E{}'.format(str(row_num)), row['year'], row_format)
+                worksheet.write('F{}'.format(str(row_num)), row['periode'], row_format)
+                worksheet.write('G{}'.format(str(row_num)), row['cust_id'], row_format)
+                worksheet.write('H{}'.format(str(row_num)), row['cust_name'], row_format)
+                worksheet.write('I{}'.format(str(row_num)), row['no_faktur'], row_format)
+                worksheet.write('J{}'.format(str(row_num)), row['user_name'], row_format)
+                row_num += 1
+                num += 1
+            
+            workbook.close()
+            
+            # file_name = os.path.join(EXPORT_EXCEL_PATH, 'faktur_data_{}_{}.xlsx'.format(start_date, end_date))
+            file_name = 'DATA_FAKTUR_{}_{}.xlsx'.format(start_date, end_date)
+            
+            output.seek(0)
+            response = make_response(output.read())
+            response.headers['Content-Disposition'] = 'attachment; filename={}'.format(file_name)
+            response.headers['Content-Type'] = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+            response.set_cookie('fileDownload', 'true', path='/')
+            
+            return response
+        else: 
+            response = {"status": 0, "message": "CSV file couldn't be exported, no invoice data between {} and {}.".format(start_date, end_date)}
+        

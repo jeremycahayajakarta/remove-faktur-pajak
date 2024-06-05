@@ -124,6 +124,19 @@ const Faktur = () => {
     }
   };
 
+  const handleExportExcel = async () => {
+    try {
+      const start_date = dayjs(dates[0]).format("YYYY-MM-DD");
+      const end_date = dayjs(dates[1]).format("YYYY-MM-DD");
+      const response_export = await fakturApi.exportExcel(start_date, end_date);
+      if (!response_export.ok) {
+        throw new Error("Failed to export faktur pajak");
+      }
+    } catch (error) {
+      console.error("Error receiving value: ", error);
+    }
+  };
+
   return (
     <>
       {/* TODO: If the alert is closed and page isn't refreshed, the alert will not be shown again */}
@@ -170,9 +183,14 @@ const Faktur = () => {
           <Flex gap={10}>
             <Col span={6}>
               <Button onClick={handleExportCSV} disabled={disabledExport}>
-                Export
+                Export CSV
+              </Button>
+              <Button onClick={handleExportExcel} disabled={disabledExport}>
+                Export Excel
               </Button>
             </Col>
+            {/* <Col span={6}>
+            </Col> */}
           </Flex>
         </Row>
       </Flex>
